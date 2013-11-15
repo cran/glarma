@@ -1,0 +1,204 @@
+2013-12-16    <d.scott@auckland.ac.nz>
+
+	* many small changes to documentation mainly to fix values
+	returned and descriptions. Worked with William at UNSW to complete
+	changes and submit to CRAN
+
+2013-11-18    <d.scott@auckland.ac.nz>
+
+	* summary.glarma, print.summary.glarma, print.glarma all changed
+	to take the null deviance and degrees of freedom found by initial
+	and use it when printing the glarma fit and summary
+
+	* initial changed so that the GLM with an intercept is also
+	fitted and usual null deviance and null df are extracted from it
+	and returned by initial
+
+2013-11-15    <d.scott@auckland.ac.nz>
+
+	* OxBoatRace.Rd, RobberyConvict.Rd examples changed so that glm
+	model is fitted with an intercept, so null degrees of freedom are
+	number of observations -1
+
+2013-11-14  David  <d.scott@auckland.ac.nz>
+
+	* summary.glarma changed to fix problem with degrees of freedom
+	calculation. Previous calculation used length() but this fails for
+	binomial when a matrix is supplied. Changed from using length() to
+	using NROW.
+
+	* print.glarma also changed to fix degrees of freedom
+
+2013-11-13    <d.scott@auckland.ac.nz>
+
+	* summmary.glarma and print.summmary.glarma argument testings
+	changed to tests
+
+	* print.summmary.glarma changed to put tests at the end and
+	specify null and alternative hypotheses.
+
+2013-11-12  David  <d.scott@auckland.ac.nz>
+
+	* glarma.Rd altered to ensure no examples take more than 5secs
+	which is a CRAN requirement.
+
+	I set the polio grad values to 1e-6 in glarma, moved the other
+	examples to the data help files (Asthma, OxBoatRace and
+	RobberyConvict). There was still a problem with Asthma, which
+	already had grad values of 1e-6. I cut the Newton-Raphson example,
+	just left Fisher scoring, and put the negative binomial as
+	\dontrun. I put a note on the negative binomial to say it was
+	\dontrun only because of timing for acceptance on CRAN. I also put
+	some pointers to the other examples in \seealso in glarma.
+
+2013-11-11  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* added the null deviance into the glarma object, and it is also
+	into the print method of the glarma object.
+
+	* added the null deviance and the residual deviance into the print
+	method of the summary.glarma object, they are shown with their
+	degrees of freedom at the bottom of the summary table.
+
+2013-11-03  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* changed the functions for control flow in deltaGen, phiGen and
+	thetaGen. They were originally controlled by is.null(), they are
+	replaced by missing(). The the default settings for arguments
+	phiLags, phiInit, thetaLags, thetaInit, alphaInit and beta in
+	glarma() are no longer NULL, but missing statement due to this
+	change of control flow functions.
+
+2013-11-01  David  <d.scott@auckland.ac.nz>
+
+	* fitted.glarma replaced by a standard fitted
+	function. fitted.values added to the list of objects returned by
+	all the glarma fitting functions. Actually fitted.glarma is now
+	redundant---fitted.default could be used as it is by glm and
+	lm. However, I have kept it in. Also mu and fitted.values returned
+	by the fitting functions are exactly the same, so only one is
+	needed, which should be fitted.values, but I have also kept mu.
+
+2013-10-31  David  <d.scott@auckland.ac.nz>
+
+	* glarmaPredProb changed for object$type == "Bin". Value of pi was
+	incorrectly calculated. Should be exp(W)/(1 + exp(W)). The
+	accessor function fitted.glarma needs checking, particularly its
+	default values.
+
+2013-10-31  David  <d.scott@auckland.ac.nz>
+
+	* qqPIT changed argument from intervals to bins to agree with
+	histPIT.
+
+	* likeTests defined as a synonym for likTests.
+
+2013-10-30  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* revised glarma.Rd for the explanation of the argument y.
+
+	* modified mySolve.R. In mySolve(), is.matrix() was originally
+	used to detect the uninvertible matrix, but it actually failed to
+	do so, as the inverse of the uninvertible matrix was still in
+	matrix form; therefore, is.matrix() could not be used to do the
+	control flow. It is now replaced with is.na() to see if there is
+	any number in the matrix that is NA or NaN.
+
+	* added a warning message into glarma() in glarma.R to help users
+	identify the situation that the model fitting is not able to
+	converge.
+
+	* added PIT.R, it is the methods of generating PIT for the glarma
+	object. It includes the function glarmaPredProb(), glarmaPIT(),
+	histPIT() and qqPIT().
+
+	* added PIT.Rd and plotPIT.Rd, they are the documentations for the
+	PIT methods.
+
+	* modified plot.glarma() by adding two PIT plots, PIT histogram
+	and uniform Q-Q plot for PIT. The corresponding arugments for
+	controling these two plot have been added into plot.glarma()
+
+	* revised plot.glarma.Rd for the inclusion the PIT plots.
+
+2013-10-09  David <d.scott@auckland.ac.nz>
+
+	* revised all .Rd files, except plot.glarma.Rd which requires the
+	addition of PIT plots.
+
+2013-10-07  David <d.scott@auckland.ac.nz>
+
+	* likeTests changed to likTests for consistency with logLik. See
+	also the use of print.likTests below. Also some minor changes to
+	print methods (adding "\n" in some places).
+
+2013-09-10  David <d.scott@auckland.ac.nz>
+
+	* RUnit testing capability added. Involves adding directories
+	tests, inst, and inst/unitTests. The approach used is the one
+	described on the R-Wiki:
+	http://rwiki.sciviews.org/doku.php?id=developers:runit
+
+2013-08-30  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* print.likTests.R added. It is the print method for likeTests, it
+	would present the tests with P-value as a matrix. Also, it would
+	come up with the significant star to help identify whether the
+	tests are significant.
+
+2013-08-27  David  <d.scott@auckland.ac.nz>
+
+	* revised all .Rd files, changed names of data sets to start with
+	upper case letter, renamed all R files to have extension .R
+
+2013-08-18  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* plot.glarma.Rd has been created, the manual about how to use
+	this S3 generic function has been set up.
+
+2013-08-15  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* plot.glarma.R added. It is a S3 generic plot method.
+
+2013-08-07  Ethan  <cli113@aucklanduni.ac.nz>
+
+	* glarma.R changed. The names of the returns for delta, ll, ll.d,
+	ll.dd, e, philags, thetalags, Y, Residtype and ErrCode are changed
+	to coefficients, logLik, logLikDeriv, logLikDeriv2, residuals,
+	phiLags, thetaLags, y, residType and errCode respectively.
+
+	Also,the returns were originally stored in a two levels list.
+	i.e. glarmaMod$fit$aic. It has been adjusted to one level
+	list. i.e. glarma$aic.
+
+	* accessors.R added. They are the accessor functions that are used
+	to extract the returns from the glarma object. They are all S3
+	generic fucntions. File includes functions coef.glarma,
+	fitted.glarma, residuals.glarma, logLik.glarma, nobs.glarma,
+	model.frame.glarma and extractAIC.glarma.
+
+	* The documentations for the functions in the accessors.R have
+	been created.
+
+2013-07-29  Ethan  <cli113@aucklanduni.ac.nz>
+
+        * cleaned up all .R file, and make them all into google style.
+
+	* paramGeneration.R added. They are the functions that are used to
+	create the vector of initial theta, phi and delta
+	automatically. File includes functions thetaGen, phiGen and
+	deltaGen.
+
+	* paramGeneration.Rd created.
+
+	* glarma.R changed and arguments phiInit, thetaInit, beta,
+	alpha.init and alpha are added. Functions in paramGeneration.R are
+	added into the function "glarma". The users would not need to
+	create the initial vector theta, phi and delta by themselves right
+	now, they could just put the neccessary information into the
+	glarma function, the delta would be created automatically.
+
+	* summary.glarma.R added. They are the summary method and the
+	print method for summary.glarma. File includes functions
+	summary.glarma and print.summary.glarma.
+

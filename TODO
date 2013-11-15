@@ -1,0 +1,9 @@
+Consider possible change to initial() so that glm model is not fitted
+without an intercept. This is so the null degrees of freedom will be
+number of observations - 1, rather than number of observations. Then
+initial() will also return this null degrees of freedom for use by
+print.glarma and print.summary.glarma
+
+Change glarma to accept formula glm component
+
+Add vignette
