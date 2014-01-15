@@ -2,10 +2,10 @@
 \docType{data}
 \alias{Asthma}
 
-\title{Daily Presentations of Asthma at Cambeltown Hospital}
+\title{Daily Presentations of Asthma at Campbelltown Hospital}
 
-\description{ 
-The data arose from a single hospital (at Cambeltown) as part of a
+\description{
+The data arose from a single hospital (at Campbelltown) as part of a
 larger (ongoing) study into the relationship between atmospheric
 pollution and the number of asthma cases presenting themselves to
 various emergency departments in local hospitals in the South West
@@ -19,7 +19,7 @@ region of Sydney, Australia.
   A data frame containing the following columns:
   \tabular{rll}{
 
-  [, 1]\tab Count \tab Daily counts of asthma at Cambeltown
+  [, 1]\tab Count \tab Daily counts of asthma at Campbelltown
   Hospital.\cr
 
   [, 2]\tab Intercept \tab A vector of ones, providing the intercept in
@@ -41,7 +41,7 @@ region of Sydney, Australia.
 
   [, 9:16] \tab T1.1990 - T2.1993 \tab Smooth shapes to capture school
   terms in each year.\cr
- 
+
  }
 }
 
@@ -75,13 +75,10 @@ plot.glarma(glarmamod)
 ## for package inclusion on CRAN
 
 ## Pearson Residuals, Newton Raphson, Negative Binomial
-## Same initialvalues as FS
-## delta <- c(GLM$beta, phi.init, theta.init, GLM$alpha)
-## use results of FS to initialise NR
-## delta <- GLARMAMOD$delta
-
+## Initial value of the shape parameter take to be zero
 glarmamod <- glarma(y, X, thetaLags = 7, type = "NegBin", method = "NR",
-                    residuals = "Pearson", maxit = 100, grad = 1e-6)
+                    residuals = "Pearson", alphaInit = 0,
+                    maxit = 100, grad = 1e-6)
 glarmamod
 summary(glarmamod)
 

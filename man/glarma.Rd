@@ -58,8 +58,8 @@ glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
     added to the data matrix as the first column for the \code{beta} of
     the intercept.}
 
-  \item{beta}{Numeric vector; initial values of the parameters of
-    variables.}
+  \item{beta}{Numeric vector; initial values of the regression
+    coefficients.}
 
   \item{phiLags}{Numeric vector; AR orders.}
 
@@ -86,9 +86,10 @@ glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
     (negative binomial). The default is the
     Poisson distribution.}
 
-  \item{method}{Character; method of iteration to be used. The default
-    is to use Fisher scoring to estimate the parameters of a GLARMA
-    model.}
+  \item{method}{Character; method of iteration to be used. Possible
+    values are \code{"FS"} (Fisher scoring), and \code{"NR"}
+    (Newton-Raphson). The default is to use Fisher scoring to estimate
+    the parameters of a GLARMA model.}
 
   \item{residuals}{Character; the type of residuals to be used. Possible
     values are \code{"Pearson"} and \code{"Score"}, and for the binomial
@@ -163,7 +164,7 @@ glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
 
 \deqn{\hat{\delta}^{(k+1)}=\hat{\delta}^{(k)}+\Omega(\hat{\delta}^{(k)}%
 )\frac{\partial l(\hat{\delta}^{(k)})}{\partial\delta}}{delta_(k+1) =%
-delta_(k) + omega(delta_k) * first derivative of log(delta_k)}
+delta_(k) + Omega(delta_k) * first derivative of log(delta_k)}
 
    where \eqn{\Omega (\hat\delta^{(k)})}{Omega(delta hat ^(k))} is some
    suitably chosen matrix.

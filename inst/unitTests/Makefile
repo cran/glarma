@@ -18,5 +18,5 @@ test: # Run unit tests
 	${R} --vanilla --slave < ${SUITE}
 
 clean:
-	rm *~ *.Rout .RData .Rhistory .DS_Store ../*~ ../../*~ ../../R/*~ ../../man/*~ ../../data/*~ ../../tests/.Rhistory ../../.DS_Store ../../R/.DS_Store ../../man/.DS_Store ../.DS_Store ../../tests/.DS_Store
+	rm *~ *.Rout .RData .Rhistory  ../*~ ../../*~ ../../R/*~ ../../man/*~ ../../data/*~ ../../tests/.Rhistory   ../../vignettes/*~
 

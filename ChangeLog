@@ -1,3 +1,32 @@
+2014-01-17    <d.scott@auckland.ac.nz>
+
+	* DESCRIPTION and NAMESPACE altered to make MASS Imports instead
+	of Depends, and to import glm.nb from MASS
+
+2014-01-15    <d.scott@auckland.ac.nz>
+
+	* added vignette .Rnw file and .bib file in vignettes directory
+	and .Rnw and .pdf and .bib in inst/doc, also knitr to suggests,
+	and VignetteBuilder in DESCRIPTION file. Some extra lines needed
+	in the .Rnw file compared to the JSS version, namely
+	\VignetteIndexEntry and \VignetteEngine specification
+
+2013-12-22    <d.scott@auckland.ac.nz>
+
+	* plot.glarma.R has added argument titles, to allow user
+	specification of graph titles. Arguments main = NULL, added to
+	histPIT and qqPIT also to facilitate this
+
+	* Asthma.Rd negative binomial example changed
+
+	* likTests x = T changed to x = TRUE throughout
+
+	* glarma.Rd list of methods ("FS" and "NR") added in description
+	of arguments. Description of beta changed to say it specifies
+	regression coefficients
+
+	* paramGen.Rd alias paramGen added
+
 2013-12-16    <d.scott@auckland.ac.nz>
 
 	* many small changes to documentation mainly to fix values

@@ -16,9 +16,9 @@ PIT histogram, and the uniform Q-Q plot for PIT.
 
 \usage{
 histPIT(object, bins = 10, line = TRUE, colLine = "red",
-        colHist = "royal blue", lwdLine = 2, ...)
+        colHist = "royal blue", lwdLine = 2, main = NULL, ...)
 qqPIT(object, bins = 10, col1 = "red", col2 = "black",
-      lty1 = 1, lty2 = 2, type = "l",  ...)
+      lty1 = 1, lty2 = 2, type = "l", main = NULL, ...)
 }
 
 
@@ -57,6 +57,9 @@ qqPIT(object, bins = 10, col1 = "red", col2 = "black",
 
   \item{type}{A 1-character string; the type of plot for the sample
     uniform Q-Q plot in PIT.}
+
+  \item{main}{A character string giving a title. For each plot the
+    default provides a useful title.}
 
   \item{...}{Further arguments passed to \code{\link{plot.default}}
     and \code{\link{plot.ts}}.}  }

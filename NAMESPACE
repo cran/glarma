@@ -1,3 +1,10 @@
+################################################
+### Package imports
+################################################
+importFrom(MASS, glm.nb)
+################################################
+### Functions
+################################################
 exportPattern("glarma")
 exportPattern("Gen")
 export(initial)
@@ -5,6 +12,9 @@ export(mySolve)
 export(likTests, likeTests)
 export(histPIT)
 export(qqPIT)
+################################################
+## S3 classes and methods
+################################################
 S3method(print, glarma)
 S3method(summary, glarma)
 S3method(print, summary.glarma)

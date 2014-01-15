@@ -66,7 +66,8 @@ glarmaPIT <- function(object, bins = 10) {
 
 ### PIT histogram
 histPIT <- function(object, bins = 10, line = TRUE, colLine = "red",
-                    colHist = "royal blue", lwdLine = 2, ...) {
+                    colHist = "royal blue", lwdLine = 2,
+                    main = NULL, ...) {
   ## Computing the height for the bar
   PIT <- glarmaPIT(object, bins = bins)$PIT
   height <- diff(PIT[, ncol(PIT)]) * bins
@@ -78,17 +79,20 @@ histPIT <- function(object, bins = 10, line = TRUE, colLine = "red",
     y.upper <- 2
   }
   ## Plotting the bar graph
+  if (is.null(main)) {
+      main <- paste("PIT for GLARMA",
+                    paste("(",
+                          switch(object$type,
+                                 "Poi" = "Poisson",
+                                 "Bin" = "Binomial",
+                                 "NegBin" = "Negative Binomial"),
+                          ")", sep = ""))
+  }
   barplot(height, ylim = c(0, y.upper),
           border = TRUE, space = 0, xpd = FALSE,
           xlab = "Probability Integral Transform",
           ylab = "Relative Frequency",
-          main = paste("PIT for GLARMA",
-              paste("(",
-                    switch(object$type,
-                           "Poi" = "Poisson",
-                           "Bin" = "Binomial",
-                           "NegBin" = "Negative Binomial"),
-                    ")", sep = "")) , col = colHist, ...)
+          main = main , col = colHist, ...)
   ## Plotting the comparison line
   if (line == TRUE){
     abline(h = 1, lty = 2, col = colLine, lwd = lwdLine)
@@ -101,19 +105,23 @@ histPIT <- function(object, bins = 10, line = TRUE, colLine = "red",
 
 ### Q-Q plot for PIT
 qqPIT <- function(object, bins = 10, col1 = "red", col2 = "black",
-                  lty1 = 1, lty2 = 2, type = "l",  ...){
+                  lty1 = 1, lty2 = 2, type = "l",
+                  main = NULL, ...){
   dummy.variable <- seq(0, 1, by = 1 / bins)
   PIT <- glarmaPIT(object, bins = bins)$PIT
   qq.plot <- PIT[, ncol(PIT)]
-  plot(dummy.variable, qq.plot, lty = lty1, col = col1,
-       xlim = c(0, 1), ylim = c(0, 1), type = type,
-       xlab = "Theoretical", ylab = "Sample",
-       main = paste("Uniform Q-Q plot",
+  if (is.null(main)){
+      main <- paste("Uniform Q-Q plot",
                     paste("(", switch(object$type,
                                       "Poi" = "Poisson",
                                       "Bin" = "Binomial",
                                       "NegBin" = "Negative Binomial"),
-                          ")", sep = "")), ...)
+                          ")", sep = ""))
+  }
+  plot(dummy.variable, qq.plot, lty = lty1, col = col1,
+       xlim = c(0, 1), ylim = c(0, 1), type = type,
+       xlab = "Theoretical", ylab = "Sample",
+       main = main, ...)
   abline(0, 1, col = col2, lty = lty2)
   list("sample" = qq.plot, "theoretical" = dummy.variable)
   invisible()

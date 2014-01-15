@@ -1,0 +1,1052 @@
+\documentclass[article, nojss]{jss}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{afterpage}
+
+\newtheorem{exmp}{Example}[section]
+\newtheorem{rexample}{R Example}[section]
+% !Rnw weave = knitr
+% \VignetteIndexEntry{The glarma package}
+% \VignetteEngine{knitr::knitr}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% almost as usual
+\author{William T.M. Dunsmuir\\
+  University of New South Wales
+  \And
+  David J. Scott\\
+  University of Auckland
+}
+
+\title{The \pkg{glarma} Package for Observation Driven Time Series
+  Regression of Counts}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{William T.M. Dunsmuir, David J. Scott} %% comma-separated
+
+\Plaintitle{The glarma Package for Observation Driven Time Series
+  Regression of Counts} %% without formatting
+
+\Shorttitle{\pkg{glarma}: Count Time Series} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{
+  We review the theory and application of generalised linear
+  autoregressive moving average observation driven models for time
+  series of counts with explanatory variables and describe the
+  estimation of these models using the \pkg{glarma}
+  R-package. Diagnostic and graphical methods are also
+  illustrated by several examples.
+}
+
+\Keywords{observation driven count time series, generalized linear
+  arma models, \pkg{glarma}, \proglang{R}}
+
+\Plainkeywords{observation driven count time series, generalized
+  linear arma models, glarma, R}
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{2012-06-04}
+%% \Acceptdate{2012-06-04}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  William T.M. Dunsmuir\\
+  Department of Statistics \\
+  School of Mathematics and Statistics\\
+  University of New South Wales\\
+  Sydney, NSW, 2052, Australia\\
+  E-mail: \email{W.Dunsmuir@unsw.edu.au}\\
+  URL: \url{http://web.maths.unsw.edu.au/~dunsmuir/}
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/512/507-7103
+%% Fax: +43/512/507-2851
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(comment = NA, fig.path='Figures/glarma',
+               fig.align = 'center', fig.show = 'hold')
+options(replace.assign = TRUE, width = 60)
+knit_hooks$set(rexample = function(before, options, envir) {
+    if (before) {
+        sprintf('\\begin{rexample}\\label{%s}\\hfill{}', options$label)
+    } else {
+        '\\end{rexample}'
+    }
+}
+)
+@
+
+<<echo=FALSE, warning = FALSE>>=
+library(MASS)
+library(glarma)
+@
+
+
+%% include your article here, just as usual
+%% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
+
+\section{Introduction}
+\label{sec:Intro}
+
+In the past 15 years there has been substantial progress made in
+developing regression models with serial dependence for discrete
+valued response time series such as arise for modelling Bernoulli,
+binomial, Poisson or negative binomial counts. In this paper we
+consider the GLARMA (generalized linear autoregressive moving average)
+subclass of observation driven models in detail. Assessing and
+modelling dependence when the outcomes are discrete random variables
+is particularly challenging. A major objective of using GLARMA models
+is the making of inferences concerning regression variables while
+ensuring that dependence is detected and properly accounted
+for. GLARMA models are relatively easy to fit and provide an
+accessible and rapid way to detect and account for serial dependence
+in regression modelling of time series.
+
+\subsection{Generalized state space models}
+\label{sec:Generalized SS models}
+
+The GLARMA models considered here are a subclass of generalized state
+space models for non-Gaussian time series described in
+\cite{davis1999modeling}, \cite{brockwell2010introduction} and
+\cite{durbin2012time} for example. A generalized state-space model for
+a time series $\{Y_{t},t=1,2,\ldots \}$ consists of an observation
+variable and state variable. The model is expressed in terms of
+conditional probability distributions for the observation and state
+variables. Such models can be loosely characterized as either
+\textbf{parameter driven} or \textbf{observation driven}. The
+observation specification is the same for both models.
+
+For parameter driven models the serial dependence in the state
+equation is governed by a latent, usually stationary, time series that
+cannot be observed directly and which evolves independently of past
+and present values of the observed responses or the covariates. On the
+other hand, as the name implies, in observation driven models, the
+random component of $W_{t}$ depends on past observations $\left\{
+  Y_{s},s<t\right\}$.
+
+Estimation of parameter driven models requires very high dimensional
+integrals to be evaluated or approximated using asymptotic expansions,
+simulation methods, numerical integration or all three. Because of
+this they can be difficult to fit and for routine model building in
+which many potential regressors need to be considered and evaluated
+for significance, the parameter driven models for count time series are
+not yet ready for general use.
+
+On the other hand, the observation driven models considered here are
+much easier to fit because the likelihood is conditionally specified
+as a product of conditional distributions which belong to the
+exponential family and for which the natural parameter is readily
+calculated via recursion. As a result they are relatively
+straightforward to apply in practical settings with numerous
+regressors and long time series.
+
+The outline of the remainder of the paper is as follows. Section
+\ref{sec:Theory GLARMA Models} provides the necessary theoretical
+background for GLARMA models. It describes the various combinations of
+model elements (response distributions, dependence structures and
+predictive residuals) that are currently supported in the \pkg{glarma}
+package. Options for initializing and obtaining maximum likelihood
+estimates using a form of Fisher scoring or Newton-Raphson iterations
+are described. Issues of parameter identifiability and convergence
+properties of GLARMA models and the maximum likelihood estimates are
+also reviewed to guide users in the application of these
+models. Section \ref{sec:modelling} describes the various modelling
+functions available in the package. Section \ref{sec:diagnostics}
+describes the built-in model diagnostic procedures and plotting
+functions. Section \ref{sec:examples} provides several examples
+illustrating the use of the package on real data sets.
+
+\section{Theory of GLARMA models}
+\label{sec:Theory GLARMA Models}
+
+The \pkg{glarma} package provides functionality for estimating
+regression relationships between a vector of regressors (covariates,
+predictors) and a discrete valued response. In time series regression
+modelling it is typically the case that there is serial
+dependence. This package models the serial dependence using the GLARMA
+class of observation driven models and provides valid inference for
+the regression model components.
+
+Let there be $N$ consecutive times at which the response and regressor
+series are observed. The response series are observations on the
+random variables $\{Y_t: t=1, \ldots, N \} $ and associated with these
+are $K$-dimensional vectors of regressors $x_{t}$ observed also for
+$t=1,\ldots, N$. We let $\mathcal{F}_t = \{Y_s: s < t, x_s: s \le t\}$
+be the past information on the response series and the past and
+present information on the regressors. In general the conditional
+distribution of $Y_{t}$ given $\mathcal{F}_{t}$ is given in
+exponential family form as
+\begin{equation}
+f(y_{t}|W_{t})=\exp\left\{  y_{t}W_{t}-a_{t}b(W_{t})+c_{t}\right\}
+  \label{Eq: EFDensity}%
+\end{equation}
+where $a_t$ and $c_t$ are sequences of constants possibly depending on
+the observations $y_t$. Information in $\mathcal{F}_{t}$ is
+summarized in the state variable $W_t$. Details are provided below for
+specific distributions available in \pkg{glarma}.
+
+Note that (\ref{Eq: EFDensity}) is not the fully general form of the
+exponential family \cite[see][]{mccullagh1989generalized} in that it
+does not include an over-dispersion parameter and the canonical link is
+used. It follows from (\ref{Eq: EFDensity}) that the conditional means
+and variances of the responses are $\mu_t:= E(Y_t|W_t)=a_t\dot b(W_t)$
+and $\sigma_t^2:=\text{var}(Y_t|W_t)=a_t\ddot b(W_t)$. The negative
+binomial case is special---see below.
+
+Observation driven models take various forms \citep[see][for a general
+discussion]{Benjamin2003}. Here we focus on the case where the state
+vector in (\ref{Eq: EFDensity}) is of the general form
+\begin{equation}
+W_{t}=x_{t}^{T}\beta+Z_{t}. \label{Eq: LinPredWt}%
+\end{equation}
+
+In addition to the regression parameters $\beta$ we assume that there
+are other parameters $\psi$ which specify the process $\left\{
+  Z_{t}\right\} $ as discussed below.
+
+\subsection{GLARMA dependence structure}
+\label{sec:GLARMA Dependence Structure}
+
+Serial dependence in the response process can be introduced via $Z_t$
+in the state process using linear combinations of past predictive
+residuals $e_t$ as
+\begin{equation}
+Z_{t}=\sum_{j=1}^{\infty}\gamma_{j} e_{t-j} \label{Eq: ODprocess}%
+\end{equation}
+
+The predictive residuals are defined as
+\begin{equation}
+e_{t}=\frac{Y_{t}-\mu_{t}}{\nu_{t}}.
+\label{Eq: GeneralGLARMAResids}%
+\end{equation}
+for some scaling sequence $\{\nu_t\}$---see Section \ref{sec:Types
+  Residuals} for choices currently supported. Note that these are
+martingale differences, hence are zero mean and uncorrelated. When
+$\nu_t$ is set to the conditional standard deviation of $Y_t$ the
+$e_t$ are also unit variance, hence are weakly stationary white noise.
+
+One parsimonious way in which to parameterize the infinite moving
+average weights $\gamma _{j}$ in (\ref{Eq: ODprocess}), is to allow
+them to be the coefficients in an autoregressive-moving average
+filter.  Specifically, set
+\begin{equation}
+\sum_{j=1}^{\infty }\gamma_{j} \zeta^{j}=\theta
+(\zeta)/\phi(\zeta)-1, \nonumber
+\end{equation}
+where $\phi (\zeta)=1-\phi _{1}\zeta-\cdots -\phi _{p}\zeta^{p}$ and
+$\theta (\zeta)=1+\theta _{1}\zeta+\cdots +\theta _{q}\zeta^{q}$ are
+the respective autoregressive and moving average polynomials of the
+ARMA filter, each having all zeros outside the unit circle. It follows
+that $\{Z_{t}\}$ satisfies the ARMA-like recursions,
+\begin{equation}
+Z_{t}=\sum_{i=1}^{p}\phi _{i}(Z_{t-i}+e_{t-i})+\sum_{i=1}^{q}\theta
+_{i}e_{t-i}.  \label{Eq: Zt recursion}
+\end{equation}
+The $\{Z_t\}$ defined in this way can be thought of as the best linear
+predictor of a stationary invertible ARMA process with driving noise
+specified by the sequence $\{e_t\}$ of scaled deviations of count
+responses from their conditional mean given the past responses and the
+past and current regressors.  This specification allows recursive
+calculation (in time $t$) of the state equation.  The model is
+referred to as a GLARMA model (see \citep{davis2003observation}).
+\cite{Shephard1995GLARmod} provides the first example of such a model
+class.
+
+\subsection{Response distributions}
+\label{sec:Response Distributions}
+
+Specific examples of exponential family members of the form (\ref{Eq:
+  EFDensity}) that are currently supported are Poisson, negative
+binomial and binomial which includes Bernoulli as a special case.
+
+\emph{Poisson:} Here $a_{t}\equiv 1$, $b(W_t)=\exp(W_t)$, $c_t=-\log
+y_t!$ and the canonical link is $g(\mu)=\ln(\mu)$. Note that
+$\mu_t=\exp(W_t)$ and $\sigma_t^2=\exp(W_t).$
+
+\emph{Binomial/Bernoulli:} Let the number of trials at time $t$ be
+$m_t$ and $\pi_t=P(Y_t=1|W_t)$. Then $a_{t}=m_t$,
+$b(\theta)=\ln(1+\exp(W_t))$ and $c_t=\log {m_t \choose y_t}$.  The
+canonical link is the logit so that $W_t=\log(\pi_t/(1-\pi_t))$. Note
+that $\mu_t=m_t \pi_t$ and $\sigma_t^2=m_t \pi_t (1-\pi_t)$. The
+Bernoulli case has $m_t\equiv 1$.
+
+\emph{Negative binomial:} Let $\mu_t=\exp(W_t)$. The \pkg{glarma}
+package uses the negative binomial density in the form
+\begin{equation}
+f(y_{t}|W_{t},\alpha)=\frac{\Gamma (\alpha +y_{t})}{\Gamma (\alpha
+)\Gamma (y_{t}+1)}\left[ \frac{\alpha }{\alpha +\mu _{t}}\right] ^{\alpha }%
+\left[ \frac{\mu _{t}}{\alpha +\mu _{t}}\right] ^{y_{t}}.
+\label{Eq: NegBin Density}
+\end{equation}
+Note that $\mu_t=\exp(W_t)$ and $\sigma_t^2=\mu_t+\mu_t^2/\alpha$. As
+$\alpha \to \infty$ the negative binomial density converges to the
+Poisson density.  Also note that if $\alpha $ is known, this density
+can be put in the one parameter exponential family with appropriate
+definitions of $\theta _{t}$, $b(\theta _{t})$, $a(\psi )$, $%
+c_{t}(y_{t},\psi )$. If $\alpha $ is not known then (\ref{Eq: NegBin
+  Density}) is not a member of the one parameter exponential family.
+
+\subsection{Types of GLARMA residuals}
+\label{sec:Types Residuals}
+GLARMA predictive residuals are of the form (\ref{Eq:
+  GeneralGLARMAResids}) where $\nu(W_{t})$ is a scaling
+function. Currently several choices for this are supported.
+\begin{description}
+\item[Pearson Scaling] Here $\nu_{t}=\nu_{P,t}$ where
+  \[
+  \nu_{P,t}=[a_t\ddot{b}(W_{t})]^{0.5}%
+  \]
+  in which case Pearson residuals result.
+\item[Score-type Scaling] These replace conditional standard deviation
+  by conditional variances
+  \[
+  \nu_{S,t}=a_t\ddot{b}(W_{t})
+  \]
+  resulting in the `score-type' residuals used in
+  \cite{creal2008general}.
+\item[Identity Scaling] A third option, which allows some form of the
+  BARMA (binary ARMA) models considered in
+  \cite{wang2011autopersistence} to be fit is to use no scaling with
+  \[
+  \nu_{I,i}=1.
+  \]
+\end{description}
+
+For the Poisson response distribution GLARMA model, failure to scale
+by the variance or standard deviation function will lead to unstable
+Poisson means (that diverge to infinity or collapse to zero as an
+absorbing state for instance) and existence of stationary and ergodic
+solutions to the recursive state equation is not assured---see
+\cite{davis1999modeling}, \cite{davis2003observation} and
+\cite{davis2005maximum} for details.  For the binomial situation this
+lack of scaling should not necessarily lead to instability in the
+success probability as time evolves since the success probabilities,
+$p_{t}$, and observed responses, $Y_{t}$, are both bounded between $0$
+and $1$. Thus degeneracy can only arise if the regressors $x_{t}$
+become unbounded from below or above. As recommended in
+\cite{davis1999modeling} temporal trend regressors should be scaled
+using a factor relating to sample size $n$.
+
+\subsection{The GLARMA likelihood}
+\label{sec:GLARMA Likelihood}
+Given $n$ successive observations $\{y_{t}: t=1,\ldots,n\}$ on the
+response series the likelihood is constructed as the product of
+conditional densities of $Y_t$ given $\mathcal{F}_{t}$. The state
+vector $W_t$ at each time embodies these conditioning variables and so
+the log likelihood is given by
+\begin{equation}
+l(\delta)=\sum_{t=1}^{n} \log f_{Y_t|W_t}(y_t| W_t; \delta).
+\label{Eq: General log likelihood}
+\end{equation}
+
+For the Poisson and binomial response distributions the log-likelihood
+(\ref{Eq: General log likelihood}) is
+\begin{equation}
+l(\delta)=\sum_{t=1}^{n} \{ y_{t}W_{t}(\delta)-a_{t}b(W_{t}(\delta))+c_{t} \}
+\end{equation}
+where $\delta =(\beta,\phi,\theta)$.
+
+For the negative binomial response distribution the log-likelihood is
+more complicated because the shape parameter $\alpha$ also has to be
+estimated along with $\beta$, $\phi$ and $\theta$. We then let $\delta
+=(\beta,\phi,\theta,\alpha)$.
+
+%\begin{equation}
+%l(\delta)=\log \left(\frac{\Gamma(\alpha +y_{t})}{\Gamma (\alpha) \Gamma (y_{t}+1)}\right) \left[ \alpha \log \left(\frac{\alpha }{\alpha +\mu _{t}}\] \right)+
+%y_{t} \log \left( \frac{\mu _{t}}{\alpha +\mu _{t}}\right). \label{Eq: NegBin logLik}
+%\end{equation}
+
+
+Note that $e_{t}$ in (\ref{Eq: GeneralGLARMAResids}), the $Z_t$ in
+(\ref{Eq: Zt recursion}) and thus the $W_{t}$ in (\ref{Eq:
+  LinPredWt}) are functions of the unknown parameter $\delta$ and
+hence need to be recomputed for each iteration of the likelihood
+optimization. Thus in order to calculate the likelihood and its
+derivatives, recursive expressions are needed to calculate $e_{t}$,
+$Z_t$ and $W_{t}$ as well as their first and second partial derivative
+with respect to $\delta $.  Expressions for these recursive formulae
+are available in \cite{davis2005maximum} for the Poisson case.
+Corresponding formulae for the binomial case were derived in
+\cite{HaolanLu2002} and for the negative binomial case in
+\cite{BoWang2004}. The essential computational cost is in the
+recursions for $Z_t$ and $W_t$ and their first and second derivative
+with respect to $\delta$. Fortunately, these require identical code
+for the various response distributions and definitions of predictive
+residuals $e_t$.
+
+For calculation of the $Z_t$ in (\ref{Eq: Zt recursion}), initializing
+conditions for the recursions must be used. The current implementation
+in \pkg{glarma} is to set $e_t=0$ and $Z_t=0$ for $t \le 0$ ensuring
+that the conditional and unconditional expected values of $e_t$ are
+zero for all $t$.
+
+The likelihood is maximized from a suitable starting value of the
+parameter $\delta$ using a version of Fisher scoring iteration or by
+Newton-Raphson iteration. For a given value of $\delta$ let the vector
+of first derivatives with respect to $\delta$ of the log-likelihood
+(\ref{Eq: General log likelihood}) be
+\begin{equation} \nonumber
+d(\delta)=\frac{\partial l(\delta)}{\partial\delta}
+\end{equation}
+and the second derivative matrix be
+\begin{equation} \label{Eq: D General}
+D_{NR}(\delta) = \frac{\partial^{2}l(\delta)}{\partial
+\delta\partial\delta^{^\top}},
+\end{equation}
+where the matrix of second derivatives of the log-likelihood is (in
+the Poisson and binomial response cases) given by
+\begin{equation} \label{Eq: D NR PoisBin cases}
+D_{NR}(\delta)
+=\sum_{t=1}^{n}[y_t-a_t \dot{b}(W_t)]\frac{\partial^{2}W_{t}}{
+\partial \delta\partial\delta^{^\top}}-\sum_{t=1}^{n} a_t \ddot{b}(W_{t})\frac{\partial W_{t}}{%
+\partial \delta}\frac{\partial W_{t}}{\partial\delta^{^\top}} .
+\end{equation}
+and $\dot{b}(u)$ and $\ddot{b}(u)$ are the first and second
+derivatives respectively of the function $b(u)$ with respect to the
+argument $u$.
+
+Using the fact that, at the true parameter value $\delta$, $E[y_t -
+a_t \dot{b}(W_t)|\mathcal{F}_{t}]=0$ the expected value the first
+summation in (\ref{Eq: D NR PoisBin cases}) is zero and hence the
+expected value of the matrix of second derivatives is
+$E[D_{FS}(\delta)]$ where
+\begin{equation} \label{Eq: D FS PoisBin cases}
+D_{FS}(\delta)
+= - \sum_{t=1}^{n} a_t \ddot{b}(W_{t})\frac{\partial W_{t}}{%
+\partial \delta}\frac{\partial W_{t}}{\partial\delta^{^\top}} .
+\end{equation}
+Note also that due to the martingale difference property of the
+predictive residuals we also have $E[D_{NR}(\delta)]= -
+E[d(\delta)d(\delta)^\top]$.  While these expectations cannot be
+computed in closed form, expression (\ref{Eq: D FS PoisBin cases})
+requires first derivatives only and is used in package \pkg{glarma} as
+the basis for the approximate Fisher scoring method.
+
+Thus, if $\delta^{(k)}$ is the parameter vector at the current iterate
+$k$, the Newton-Raphson updates proceed using
+\begin{equation}\label{Eq: MLE Iterations}
+  \delta^{(k+1)}= \delta^{(k)}-D_{NR}(\delta^{(k)})^{-1} d(\delta^{(k)})
+\end{equation}
+and the approximate Fisher scoring updates use $D_{FS}$ in place of
+$D_{NR}$
+
+Given a specified tolerance $TOL$, iterations continue until the
+largest gradient of the log-likelihood satisfies $\max_i
+|d_i(\delta^{(k)}|) \le TOL$ or a maximum number of iterations MAXITER
+is surpassed. At termination we let $\hat{\delta}= \delta^{(k+1)}$ and
+call this the ``maximum likelihood estimate" of $\delta$.
+
+By default, the iterations in (\ref{Eq: MLE Iterations}) are
+initialized using the generalized linear model (GLM) estimates for
+$\beta$ and zero initial values for the autoregressive moving average
+terms. For the negative binomial case $\beta$ and $\alpha$ are
+initialized using a call to \code{glm.nb()} from the package
+\pkg{MASS} (see \cite{VenRip02}). Convergence in the majority of cases
+is rapid. Users may optionally specify initial parameter values of
+their own choice.
+
+\subsection{Parameter identifiability}
+\label{sec:Parameter Identifiability}
+
+The GLARMA component $Z_t$ of the state variable given in (\ref{Eq: Zt
+  recursion}) can be rewritten as
+\begin{equation}
+Z_{t}=\sum_{i=1}^{p}\phi_{i}Z_{t-i}+\sum_{i=1}^{\tilde{q}}\tilde{\theta}
+_{i}e_{t-i}.  \label{Eq: Zt recursion alternate}
+\end{equation}
+where $\tilde{q}=\max(p,q)$ and
+\begin{enumerate}
+\item If $p \le q$, $\tilde{\theta}_j=\theta_j+\phi_j$ for
+  $j=1,\ldots,p$ and $\tilde{\theta}_j=\theta_j$ for $j=p+1,
+  \ldots,q$.
+\item If $p>q$, $\tilde{\theta}_j=\theta_j+\phi_j$ for $j=1,\ldots,q$ and
+  $\tilde{\theta}_j=\phi_j$ for \j=$q+1,\ldots,p$.
+\end{enumerate}
+When pre-observation period values are set to zero
+(that is $Z_t=0$ for $t \le 0$ and $e_t=0$ for $t \le 0$) then
+if and only if $\tilde{\theta}_j = 0$ for $j=1,\ldots,\tilde{p}$ the
+recursion (\ref{Eq: Zt recursion alternate}) would result in $Z_t =0$
+for all $t$ and hence there is no serial dependence in the GLARMA
+model. This is is equivalent to $\phi_j=-\theta_j$ for
+$j=1,\ldots,p$ and $\theta_j=0$ for $j=p+1,\ldots,\tilde{q}$.
+
+Consequently a null hypothesis of no serial dependence requires only
+these constraints on the $\theta$ and $\phi$ parameters. In some
+situations this means that under the null hypothesis of no serial
+dependence there are nuisance parameters which cannot be
+estimated. This has implications for convergence of the iterations
+required to optimize the likelihood and on testing that there is no
+serial dependence in the observations (other than induced by the
+regression component $x_t^\top \beta$).
+
+When $p>0$ and $q=0$ (equivalent to an ARMA$(p,p)$ specification with
+constraint $\theta_j=\phi_j$ or a pure MA with $p=0$ and $q>0$ then
+identification issues do not arise and the hypothesis of no serial
+dependence corresponds to the hypothesis that $\phi_j=0$ for
+$j=1,\ldots,p$ in the first case and $\theta_j=0$ for $j=1,\ldots,q$
+in the second case. The provided likelihood ratio and Wald tests (see
+Section \ref{sec:tests} for further details) will have an asymptotic
+chi-squared distribution with correct degrees of freedom.
+
+In cases where $p>0$ and $q>0$ some caution is advised when fitting
+models and testing that serial dependence is not present. To simplify
+the discussion we focus on the case where $p=q$;
+
+\begin{enumerate}
+\item If there is no serial dependence in the observations but $p=q>0$
+  is specified then there is a strong possibility that the likelihood
+  optimization for this overspecified model will not converge because
+  the likelihood surface will be `ridge-like' along the line where
+  $\phi_j=-\theta_j$. This issue is classical for standard ARMA
+  models. Similarly if the degree of serial dependence is of lower
+  order than that specified for the GLARMA model identifiability
+  issues and lack of convergence of the likelihood optimizing
+  recursions is likely to occur. Following from this it is highly
+  recommended that users start with low orders for $p$ and $q$ and
+  initially avoid specifying them to be equal. Once stability of
+  estimation is reached for a lower order specification increasing the
+  values of $p$ or $q$ could be attempted. Lack of identifiability
+  typically manifests itself in the matrix of second derivatives
+  $D_{NR}$ or the approximate Fisher scoring version $D_{FS}$ becoming
+  close to singular or even non-positive definite. The state variable
+  $W_t$ can also degenerate to $\pm \infty$ for which an error code in
+  the output from the \texttt{glarma()} call is provided.
+\item The likelihood ratio test that there is no serial dependence
+  versus the alternative that there is GLARMA like serial dependence
+  with $p=q>0$ will not have a standard chi-squared distribution
+  because the parameters $\phi_j$ for $j=1,\ldots,p$ are nuisance
+  parameters which cannot be estimated under the null
+  hypothesis. Testing methods such as proposed in
+  \cite{hansen1996inference} need to be developed for this situation.
+\end{enumerate}
+
+\subsection{Stochastic properties of GLARMA models}
+\label{sec:Stoch Props GLARMA Mods}
+
+Means, variances and autocovariances for the state process $\{W_t\}$
+can be readily derived using the definition of $Z_t$ in (\ref{Eq:
+  ODprocess})---see \citep{davis1999modeling}. For the Poisson
+response case the corresponding means, variance and autocovariances
+for the count response series $\{Y_t\}$ can be derived
+approximately. Additionally an approximate interpretation of the
+regression coefficients $\beta$ can be given---see
+\citep{davis2003observation}. Similar results could be derived for the
+negative binomial response case.  For binomial and Bernoulli responses,
+calculation of means, variances, autocovariances for the response
+series and interpretation of regression coefficients is not
+straightforward. This is a typical issue for interpretation of random
+effects models and transition models in the binomial or Bernoulli
+case---see \cite{diggle2002analysis} for example.
+
+To date the stationarity and ergodicity properties of the GLARMA model
+are only partially understood. These properties are important in order
+to ensure that the process is capable of generating sample paths that
+do not degenerate to zero or do not explode as time progresses, as
+well as for establishing the large sample distributional properties of
+estimates of the parameters. \cite{davis2003observation} provide partial
+results for perhaps the simplest of all possible models for Poisson
+responses specified with $p=0$, $q=1$ and $x_{t}^\top\beta =\beta
+$. Results for simple examples of the stationary Bernoulli case are given
+in \cite{streett2000some}.
+
+\subsection{Fitted values}
+\label{sec:fitted values}
+There are two concepts of fitted values currently supported for the
+GLARMA model.  The first is defined as the estimated conditional mean
+function $\hat{\mu}_t$ at time $t$ calculated using the maximum
+likelihood estimates $\hat{\delta}$. Thus
+\begin{equation} \label{Eq: Fitted Est Cond Mean}
+\hat{\mu}_t =m_t \dot{b} (x^\top_t \hat{\beta} + \hat{Z}_t)
+\end{equation}
+where $\hat{Z}_t$ are calculated using $\hat{\delta}$ in
+(\ref{Eq: Zt recursion}). These fitted values combine the regression
+fit (fixed effects) together with the contribution from weighted sums
+of past estimated predictive residuals.
+
+Because for GLARMA models the unconditional mean function is difficult
+to obtain exactly in all cases an estimated unconditional mean
+function of $t$ is not provided. Instead, for the second concept of
+fitted values, the fitted value from the regression term only is
+suggested as a guide to the fit without the effect of random variation
+due to $Z_t$.  This is defined to be
+\begin{equation} \label{Eq: Fitted Fixed Effects}
+\tilde{\mu}_t =m_t \dot{b} (x^\top_t \hat{\beta})
+\end{equation}
+We refer to this as the ``fixed effects fit" in plotting functions
+below. Note that this is not an estimate of the unconditional mean
+even in the Poisson case (arguably the most tractable for this
+calculation)---the theoretical unconditional mean for this case is
+approximated by $\exp(x^\top_t \beta + \nu^2/2)$ where $\nu^2 =
+\sum_{l=1}^{\infty} \gamma_i^2$---see \cite{davis2003observation} for
+details. A similar calculation for the binomial case is not
+available. Hence, in view of these theoretical constraints, the use of
+the fixed effects fit seems a simple and sensible alternative to the
+conditional mean $\hat{\mu}_t$ given by (\ref{Eq: Fitted Est Cond
+  Mean}).
+
+\subsection{Distribution theory for likelihood estimation}
+\label{sec:Asymptotic Dist MLEs}
+
+For inference in the GLARMA model it is assumed that the central limit
+theorem holds so that
+\begin{equation}\label{Eq: CLT}
+\hat{\delta} \overset{d}{\approx} N(\delta , \hat{\Omega})
+\end{equation}
+where the approximate covariance matrix is estimated by
+\begin{equation}\label{Eq: Asymptotic Cov Mat}
+  \hat{\Omega} = - D_{NR}(\hat{\delta})^{-1}
+\end{equation}
+in the case of Newton-Raphson and similarly with $D_{NR}$ replaced by
+$D_{FS}$ in the case of Fisher scoring. Thus a standard error for the
+maximum likelihood estimates of the $i$th component of $\delta$ is
+computed using $\hat{\Omega}^{1/2}_{ii}$.
+
+There have been a number of claims in the literature concerning a
+central limit theorem for models of this type. However all of these
+make assumptions concerning convergence of key quantities all of which
+require the ergodicity to be established which has not been done in
+generality as yet. The central limit theorem for the maximum
+likelihood parameter estimates is rigorously established only in the
+stationary Poisson response case in \cite{davis2003observation} and in
+the Bernoulli stationary case in \cite{streett2000some}. Simulation
+results are also reported in
+\cite{davis1999modeling,davis2003observation} for non-stationary
+Poisson models. Other simulations not reported in the literature
+support the supposition that the estimates $\hat{\delta}$ have a
+multivariate normal distribution for large samples for a range of
+regression designs and for the various response distributions
+considered here.
+
+A central limit theorem for the maximum likelihood estimators is
+currently not available for the general model. Regardless of the
+technical issues involved in establishing a general central limit
+theorem the above approximate result seems plausible since, for these
+models the log-likelihood is a sum of elements in a triangular array
+of martingale differences.
+
+For nested models likelihood ratio test statistics can be calculated
+and compared to the assumed chi-squared asymptotic distribution in the
+usual way. The above asymptotic result can be used to obtain an
+approximate chi-squared distribution for a Wald test that subsets of
+$\delta$ take specified values. Let $\delta^{(1)}$ specify a subset of
+$\delta$ that is hypothesized to take a specific value
+$\delta_0^{(1)}$. The Wald test is constructed as
+\begin{equation} \label{Eq: Wald Test General From}
+W^2 = [\hat{\delta}^{(1)}-\delta_0^{(1)}]^\top [\hat{\Omega}^{(1)}]^{-1} [\hat{\delta}^{(1)}-\delta_0^{(1)}]
+\end{equation}
+where $\hat{\Omega}^{(1)}$ is the submatrix corresponding to
+$\delta_0^{(1)}$ of the estimated asymptotic covariance matrix of
+(\ref{Eq: Asymptotic Cov Mat}).
+
+Further details on implementation of these tests in \pkg{glarma} are
+given in Section \ref{sec:tests}.
+
+
+
+\section[Modelling]{Modelling functions}
+\label{sec:modelling}
+
+There are seven modelling functions for fitting GLARMA models, falling
+into three groups:
+\begin{description}
+\item[Poisson:] \texttt{glarmaPoissonPearson()} and
+\texttt{glarmaPoissonScore()}.
+\item[Binomial:] \texttt{glarmaBinomialIdentity()},
+\texttt{glarmaBinomialPearson()} and\\ \texttt{glarmaBinomialScore()}.
+\item[Negative Binomial:] \texttt{glarmaNegBinPearson()} and
+\texttt{glarmaNegBinScore()}.
+\end{description}
+
+The second component of the name indicates the distribution used for
+the counts and the third component the residuals used in the fitting
+routine. A call to \texttt{glarma()} results in a call to the
+appropriate fitting routine, as determined by the values of the
+arguments \texttt{type}, and \texttt{residuals} supplied to the
+\texttt{glarma()} call. Pearson residuals are used by default. Two
+iterative methods are available for the optimization of the
+log-likelihood, Fisher Scoring (\texttt{method = "FS"}) and
+Newton-Raphson (\texttt{method = "NR"}), the default method being
+Fisher Scoring. The object returned by any of the fitting routines is
+of class \code{"glarma"}.
+
+To specify the model in a call to \texttt{glarma()}, the response
+variable is given by the argument \texttt{y}, and the matrix of
+predictors for the regression part of the model is given by the
+argument \texttt{X}. The matrix \texttt{X} must include a column of
+ones to enable the fitting of a mean term in the regression component
+of the model. Initial values can be given for the coefficients in the
+regression component using the argument \texttt{beta}. If no initial
+values are provided, a call is made to the corresponding generalized
+linear model to obtain initial regression coefficient values.
+
+The ARMA component of the model is specified using the arguments
+\texttt{phiLags} and \texttt{phiInit} (for the AR terms) and
+\texttt{thetaLags} and \texttt{thetaInit} (for the MA terms). For both
+the AR and MA terms, the first argument of the pair of arguments
+specifies the orders of the lags which are to be included in the
+model, and the second argument the initial values of the coefficients
+for those lags.
+
+When the counts are modeled using the negative binomial distribution,
+there is an additional parameter, the shape parameter of the negative
+binomial, designated as $\alpha$ in the GLARMA model. This parameter
+is called $\theta$ in the function \texttt{glm.nb()} from the package
+\pkg{MASS}, but for GLARMA models $\theta$ refers to the moving
+average terms in the ARMA component of the model. An initial value for
+$\alpha$ can be provided using the argument \texttt{alphaInit}. If no
+initial value is provided, a call is made to \texttt{glm.nb()} from
+\pkg{MASS}. An initial value for the call to \texttt{glm.nb()} can be
+supplied by giving a value to the argument \texttt{alpha} of
+\texttt{glarma()}. The default value for \texttt{alpha} is 1.
+
+Because the GLARMA model is fitted using numerical non-linear
+optimization, non-convergence is a possibility. Two error codes are
+included in the object returned by the \texttt{glarma()} to alert
+users to numerical problems with fitting. If the Fisher Scoring or
+Newton-Raphson iterations fail to converge, \texttt{errCode} will be
+set to 1. This can result from non-identifiability of the ARMA
+component of the model such as when the degrees and lags of both the
+AR and MA components are specified to be the same, as discussed in
+Section \ref{sec:Parameter Identifiability}. It is possible that for
+certain values of the ARMA parameters the recursions calculating
+$\{W_t\}$ diverge to $\pm \infty$. In that case the value of
+\texttt{WError} will be set to 1 allowing the user to check for this
+condition when the likelihood optimization fails to converge.
+
+Once a fitted model object has been obtained, there are accessor
+functions available using S3 methods to extract the coefficients
+(\texttt{coef()}, or the alias \texttt{coefficients()}), the fitted
+values (\texttt{fitted()} or the alias \texttt{fitted.values()}), the
+residuals (\texttt{residuals()} or the alias \texttt{resid()}), the
+model frame (\texttt{model.frame()}), the number of observations
+(\texttt{nobs()}), the log-likelihood (\texttt{logLik()}), and the AIC
+(\texttt{extractAIC()}). These are standard implementations of these
+methods with the exception of \texttt{coef()}. This method takes an
+argument \texttt{types} which allows the extraction of the ARMA
+coefficients (\texttt{types = "ARMA"}), or the regression coefficients
+(\texttt{types = "beta"}), or both sets of coefficients (\texttt{types
+  = "all"}), the default.
+
+Other S3 methods available for an object of class \code{"glarma"} are
+\texttt{print}, \texttt{summary}, \texttt{print.summary}, and
+\texttt{plot}.
+
+\section{Diagnostics}
+\label{sec:diagnostics}
+
+\subsection[Test]{Likelihood ratio and Wald tests}
+\label{sec:tests}
+
+In \pkg{glarma}, the likelihood ratio test and the Wald test tests
+that the serial dependence parameters
+$\psi=(\phi^\top,\theta^\top)^\top$ are all equal to zero (that is
+tests $H_{0}:\psi=0$ versus $H_{a}:\psi\neq0$) are provided by the
+function \texttt{likTests()}, which operates on an object of
+type ``glarma". The likelihood ratio test compares the likelihood of
+the fitted GLARMA model with the likelihood of the GLM model with the
+same regression structure. The same null hypothesis applies to the
+Wald test, which is based on the Wald statistic defined in (\ref{Eq:
+  Wald Test General From}). Values of both statistics are compared to
+the chi-squared distribution with degrees of freedom given by the
+number of ARMA parameters. These degrees of freedom and associated
+chi-squared $p$~values are correct under the situations discussed in
+Section \ref{sec:Parameter Identifiability}.
+
+Package users may also construct their own tailor made likelihood
+ratio tests by using the reported log-likelihood (\texttt{logLik()})
+for the two models under comparison and Wald tests $W^2$ in (\ref{Eq:
+  Wald Test General From}) using the appropriate submatrix of the
+reported estimated covariance matrix in (\ref{Eq: Asymptotic Cov Mat})
+available as \texttt{glarmamod\$cov}.
+
+
+\subsection[PIT]{Probability integral transformation}
+\label{sec:pit}
+
+To examine the validity of the assumed distribution in the GLARMA
+model a number of authors have suggested the use of the probability
+integral transformation (PIT), see for example
+\cite{Czado2009}. Although the PIT applies to continuous distributions
+and the distributions in GLARMA models are discrete, \cite{Czado2009}
+have provided a non-randomized approach which has been implemented in
+the \pkg{glarma} package. There are four functions involved:
+\texttt{glarmaPredProb} calculates conditional predictive
+probabilities; \texttt{glarmaPIT} calculates the non-randomized PIT;
+\texttt{histPIT} plots a histogram of the PIT; and \texttt{qqPIT}
+draws a Q-Q plot of the PIT. If the distribution selected for the
+model is correct, then the histogram and Q-Q plot should resemble the
+histogram and Q-Q plot obtained when sampling from the uniform
+distribution on $[0,1]$. Of the two plots, the histogram is generally
+more revealing. Deviations from the expected form of the Q-Q plot are
+often difficult to discern.
+
+To calculate the conditional predictive probabilities and the PIT the
+following formulae from \cite{Czado2009} are used.
+
+Given the counts $\{y_t\}$, the conditional predictive probability
+function $F^{(t)}(.|y_t)$ is given by
+\begin{equation}
+  \label{eq:condpit}
+F^{(t)}(u|y_t) =
+\begin{cases}
+  0, & u \leq F(y_t - 1),\\
+  \frac{\displaystyle u - F(y_t - 1)}
+  {\displaystyle F(y_t) - F(y_t - 1)}, &
+  F(y_t - 1) \leq u \leq F(y_t),\\
+  1, & u > F(y_t).
+\end{cases}
+\end{equation}
+Here $F(y_t)$ and $F(y_t - 1)$ are the upper and lower conditional
+predictive probabilities respectively.
+
+Then the non-randomized PIT is
+defined as
+\begin{equation}
+  \label{eq:pit}
+{\bar{F}}(u) = \frac{1}{T-1}\sum_{t=2}^T F^{(t)}(u|y_t)
+\end{equation}
+
+To draw the PIT histogram, the number of bins, $I$, is chosen, then
+the height of the $i$th bin is
+\begin{equation}
+  \label{eq:histogram}
+  f_i = \bar{F}\left(\frac{i}{I}\right) - \bar{F}\left(\frac{i-1}{I}\right).
+\end{equation}
+The default number of bins in \texttt{histPIT} is 10. To help with
+assessment of the distribution, a horizontal line is drawn on the
+histogram at height 1, representing the density function of the
+uniform distribution on $[0,1]$.
+
+The Q-Q plot of the PIT plots $\bar{F}(u)$ against $u$, for $u \in
+[0,1]$. The quantile function of the uniform distribution on $[0,1]$ is
+also drawn on the plot for reference.
+
+\cite{jung2011useful} employ the above diagnostics as well as the
+randomized version of PIT residuals to compare alternative competing
+count time series models for several data sets.
+
+\subsection{Plots}
+\label{sec:plots}
+
+The plot method for objects of class \code{"glarma"} produces six plots by
+default: a time series plot with the observed values of the dependent
+variable, the fixed effects fit, and the GLARMA fit; an ACF plot of
+the residuals; a plot of the residuals against time; a normal Q-Q plot;
+the PIT histogram; and the Q-Q plot for the PIT. Any subset of these
+six plots can be produce using the \texttt{which} argument. For
+example to omit both of the Q-Q plots (plots 4 and 6), set
+\texttt{which = c(1:3, 5)}. Arguments to the plot method are also
+provided to change properties of lines in these plots, namely line
+types, widths, and colours.
+
+\section{Examples}
+\label{sec:examples}
+
+There are four example data sets included in the \pkg{glarma}
+package. Sample analyses for all these data sets are provided in
+either the help pages for the data sets or for the \texttt{glarma()}
+function.
+
+GLARMA models with Poisson counts have appeared previously in the
+literature, however analyses using the binomial and negative binomial
+distributions are novel, so we concentrate on those cases in this
+section.
+
+
+\subsection{Asthma data}
+\label{sec:asthma-data}
+
+This data set arose from a single hospital (at Campbelltown, as part
+of a larger study into the relationship between atmospheric pollution
+and the number of asthma cases presenting at emergency departments in
+the South West region of Sydney, Australia, see
+\cite{davis2003observation}. A description of the columns in the data
+set is given in Table~\ref{tab:asthma}
+
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|c|l|l|}
+    \hline
+    Column & Variable & Description \\
+    \hline
+    1 & \texttt{Count} & Daily asthma counts \\
+    2 & \texttt{Intercept} & Vector of 1s \\
+    3 & \texttt{Sunday} & Dummy variable for Sundays \\
+    4 & \texttt{Monday} & Dummy variable for Mondays \\
+    5 & \texttt{CosAnnual} & $\cos(2\pi t/365)$, annual cosine term\\
+    6 & \texttt{SinAnnual} & $\sin(2\pi t/365)$, annual sine term\\
+    7 & \texttt{H7} & Scaled, lagged and smoothed humidity\\
+    8 & \texttt{NO2max} & Maximum daily nitrogen oxide\\
+    9--16 & \texttt{T1.1990--T2.1993} & Smooth shapes to capture
+    school terms in each year\\
+    \hline
+  \end{tabular}
+  \caption{The asthma data set}
+\end{table}
+\label{tab:asthma}
+
+We fit a model with a moving average term at lag 7 with negative
+binomial counts. The initial values of the regression coefficients are
+found by fitting the corresponding GLM model, and the initial value of
+the shape parameter, $\alpha$ of the negative binomial distribution is
+taken as 0. Pearson residuals are used and fitting is by
+Newton-Raphson.
+
+<<asthma, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE>>=
+data(Asthma)
+y <- Asthma[, 1]
+X <- as.matrix(Asthma[, 2:16])
+glarmamod <- glarma(y, X, thetaLags = 7, type = "NegBin", method = "NR",
+                    residuals = "Pearson", alphaInit = 0,
+                    maxit = 100, grad = 1e-6)
+glarmamod
+summary(glarmamod)
+@ %def
+We note that virtually all the regression terms in the model are
+significant, most being highly significant. The moving average term is
+significant and both the tests indicate that there is a need to fit a
+GLARMA model rather than a simple GLM. The value of $\alpha$ is quite
+large, suggesting that a Poisson model might provide adequate fit.
+
+The plot method for an object of class \code{"glarma"} shows six plots
+by default: a time series plot with observed values of the dependent
+variable, fixed effects fit, and GLARMA fit; an ACF plot of residuals;
+a plot of residuals against time; a normal Q-Q plot; the PIT
+histogram; and the uniform Q-Q plot for the PIT. As an example, in
+Figure~\ref{fig:asthmaplot}, we show just four of these plots. Since
+the default title for the PIT histogram is too long for the available
+space we use the \code{titles} argument to abbreviate it.
+
+<<asthmaplot, fig.width = 4, fig.height = 4, out.width = '.4\\linewidth', fig.cap = "Diagnostic plots for the asthma model">>=
+par(mar = c(4,4,3,.1), cex.lab = 0.95, cex.axis = 0.9,
+    mgp = c(2,.7,0), tcl = -0.3, las = 1)
+plot(glarmamod, which = c(1,2,3,5),
+     titles = list(NULL, NULL, NULL, "PIT for GLARMA (Neg. Binomial)"))
+@ %def
+
+The ACF plot indicates that the model has dealt adequately with any
+serial correlation present, and the PIT histogram suggests that the
+negative binomial provides a suitable model for the counts.
+\newpage
+
+
+\subsection{Court Conviction Data}
+\label{sec:court-data}
+
+This data set records monthly counts of charges laid and convictions
+made in Local Courts and Higher Court in armed robbery in New South
+Wales, Australia, from 1995--2007, see \cite{dunsmuir2008assessing}. A
+description of the columns in the data set is given in
+Table~\ref{tab:court}.
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{|c|l|l|}
+    \hline
+    Column & Variable & Description \\
+    \hline
+    1 & \texttt{Date} & Date in month/year format\\
+    2 & \texttt{Incpt} & Vector of 1s \\
+    3 & \texttt{Trend} & Scaled time trend \\
+    4 & \texttt{Step.2001} & Step change from 2001 onwards \\
+    5 & \texttt{Trend.2001} & Change in trend from 2001 onwards\\
+    6 & \texttt{HC.N} & Monthly number of cases, Higher Court\\
+    7 & \texttt{HC.Y} & Monthly number of convictions, Higher Court\\
+    8 & \texttt{HC.P} & Monthly proportion of convictions, Higher Court\\
+    9 & \texttt{LC.N} & Monthly number of cases, Lower Court\\
+    10 & \texttt{LC.Y} & Monthly number of convictions, Lower Court\\
+    11 & \texttt{LC.P} & Monthly proportion of convictions, Lower Court\\
+    \hline
+  \end{tabular}
+  \caption{The court conviction data set}
+\end{table}
+\label{tab:court}
+
+The first step is to set up dummy variables for months.
+<<courtmonths, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE>>=
+data(RobberyConvict)
+datalen <- dim(RobberyConvict)[1]
+monthmat <- matrix(0, nrow = datalen, ncol = 12)
+dimnames(monthmat) <- list(NULL, c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+months <- unique(months(strptime(RobberyConvict$Date, format = "%m/%d/%Y"),
+                        abbreviate=TRUE))
+for (j in 1:12) {
+  monthmat[months(strptime(RobberyConvict$Date,  "%m/%d/%Y"),
+                  abbreviate = TRUE) == months[j], j] <-1
+}
+
+RobberyConvict <- cbind(rep(1, datalen), RobberyConvict, monthmat)
+rm(monthmat)
+@ %def
+
+Similar analyses can be carried out for both the Lower Court and the
+Higher Court data. Here we consider only the Lower Court data. The
+ARIMA component of the model is chosen to be AR(1) and the model for
+the conviction counts is binomial. A GLM is fitted first to obtain an
+initial value for the regression coefficients. The initial value of
+the AR parameter is set at 0. Pearson residuals are used with
+Newton-Raphson iteration.
+
+<<courtmodel, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE>>=
+### Prepare the data for fitting a binomial
+y1 <- RobberyConvict$LC.Y
+n1 <- RobberyConvict$LC.N
+Y <- cbind(y1, n1-y1)
+head(Y, 5)
+### Fit the GLM
+glm.LCRobbery <- glm(Y ~ Step.2001 +
+                        I(Feb + Mar + Apr + May + Jun + Jul) +
+                        I(Aug + Sep + Oct + Nov + Dec),
+                     data = RobberyConvict, family = binomial(link = logit),
+                     na.action = na.omit, x = TRUE)
+summary(glm.LCRobbery, corr = FALSE)
+X <- glm.LCRobbery$x
+colnames(X)[3:4] <- c("Feb-Jul","Aug-Dec")
+head(X, 5)
+glarmamod <- glarma(Y, X, phiLags = c(1), type = "Bin", method = "NR",
+                    residuals = "Pearson", maxit = 100, grad = 1e-6)
+summary(glarmamod)
+@ %def
+
+We observe that the regression coefficients for the GLARMA model are
+quite similar to those for the GLM model. In particular, the step
+change in 2001 is highly significant. The likelihood ratio and
+Wald tests both suggest the need to deal with autocorrelation.
+<<courtplot, fig.width = 4, fig.height = 4, out.width = '.4\\linewidth', fig.cap = "Diagnostic plots for the court conviction model">>=
+par(mar = c(4,4,3,.1), cex.lab = 0.95, cex.axis = 0.9,
+    mgp = c(2,.7,0), tcl = -0.3, las = 1)
+plot(glarmamod)
+@ %def
+In the diagnostic plots shown in Figure~\ref{fig:courtplot}, the ACF
+plot shows little residual autocorrelation, and the Q-Q plot of the
+residuals shows reasonable conformity with normality. However the PIT
+histogram suggests that the binomial model for the counts is not
+appropriate for this data.  \clearpage
+\bibliography{glarma}
+
+
+
+\end{document}

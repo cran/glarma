@@ -1,4 +1,5 @@
 \name{paramGen}
+\alias{paramGen}
 \alias{deltaGen}
 \alias{thetaGen}
 \alias{phiGen}

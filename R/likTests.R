@@ -17,16 +17,16 @@ likeTests <- likTests <- function(object) {
     type <- object$type
 
     if (type == "Poi")
-        (GLM <- glm(y ~ -1 + X, family = poisson, x = T))
+        (GLM <- glm(y ~ -1 + X, family = poisson, x = TRUE))
 
 
     if (type == "Bin")
         (GLM <- glm(y ~ -1 + X, family = binomial(link = logit),
-                na.action = na.omit, x = T))
+                na.action = na.omit, x = TRUE))
 
     if (type == "NegBin")
         ## fix up neg bin case later
-        (GLM <- glm.nb(y ~ -1 + X, init.theta = 1, x = T))
+        (GLM <- glm.nb(y ~ -1 + X, init.theta = 1, x = TRUE))
 
 
     ll.null <- r - GLM$aic/2

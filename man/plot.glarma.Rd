@@ -6,8 +6,8 @@
 \description{
   Six plots (selectable by \code{which}) are currently available: a
   time series plot with observed values of the dependent variable, fixed
-  effects fit, and \code{GLARMA} fit; an ACF plot of residuals; a plot
-  of residuals against time; a Normal Q-Q plot; the PIT histogram; and
+  effects fit, and GLARMA fit; an ACF plot of residuals; a plot
+  of residuals against time; a normal Q-Q plot; the PIT histogram; and
   the uniform Q-Q plot for the PIT. By default, all plots are provided.
 }
 
@@ -20,7 +20,7 @@
      pchObs = 1, legend = TRUE, residPlotType = "h", bins = 10,
      line = TRUE, colLine = "red", colHist = "royal blue",
      lwdLine = 2, colPIT1 = "red", colPIT2 = "black",
-     ltyPIT1 = 1, ltyPIT2 = 2, typePIT = "l",...)
+     ltyPIT1 = 1, ltyPIT2 = 2, typePIT = "l", titles, ...)
 }
 
 \arguments{
@@ -30,16 +30,16 @@
 
  \item{which}{Numeric; if a subset of the plots is required, specify a
    subset of the numbers 1:6. 1 is the time series plot with observed
-   values of the dependent variable, fixed effects fit, and \code{GLARMA}
+   values of the dependent variable, fixed effects fit, and GLARMA
    fit. 2 is the ACF plot of residuals. 3 is a plot of residuals
-   against time. 4 is the Normal Q-Q plot. 5 is the PIT histogram. 6
+   against time. 4 is the normal Q-Q plot. 5 is the PIT histogram. 6
    is the uniform Q-Q plot for the PIT. By default, all plots are
    provided.}
 
  \item{fits}{Numeric; if a subset of fits on the time series plot is
    required, specify a subset of the numbers 1:3. 1 is the observed
    values of the dependent variable, 2 is the fixed effects fit, and 3 is
-   \code{GLARMA} fit. By default, all fits are provided.}
+   GLARMA fit. By default, all fits are provided.}
 
  \item{ask}{Logical; if \code{TRUE}, the user is asked before each
    plot, see \code{\link{par}(ask = .)}.}
@@ -50,7 +50,7 @@
  \item{lwdFixed}{Numeric; the line widths for lines of the fixed
    effects fit appearing in the time series plot.}
 
- \item{lwdGLARMA}{Numeric; the line widths for lines of \code{GLARMA}
+ \item{lwdGLARMA}{Numeric; the line widths for lines of GLARMA
    fit appearing in the time series plot.}
 
  \item{ltyObs}{An integer or character string; the line types for the
@@ -62,7 +62,7 @@
    \code{\link{par}(lty = .)}.}
 
  \item{ltyGLARMA}{An integer or character string; the line types for the
-   line of \code{GLARMA} fit appearing in the time series plot, see
+   line of GLARMA fit appearing in the time series plot, see
    \code{\link{par}(lty = .)}.}
 
  \item{pchObs}{Numeric; the point type for the point of the observed
@@ -76,7 +76,7 @@
    fixed effects fit appearing in the time series plot.}
 
  \item{colGLARMA}{Numeric or character; the colour of lines of
-   \code{GLARMA} fit appearing in the time series plot.}
+   GLARMA fit appearing in the time series plot.}
 
  \item{legend}{Logical; if \code{TRUE}, the legend for the fits in the
    time series plot would be shown. By default, it would be shown.}
@@ -120,6 +120,10 @@
 
  \item{typePIT}{A 1-character string; the type of plot for the sample
    uniform Q-Q plot in the PIT.}
+
+ \item{titles}{A list of the same length as \code{which}. For any
+   elements which are \code{NULL}, useful titles will be created for the
+   corresponding plot.}
 
  \item{...}{Further arguments passed to \code{\link{plot.default}} and
    \code{\link{plot.ts}}.}
