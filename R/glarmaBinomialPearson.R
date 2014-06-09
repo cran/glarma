@@ -1,9 +1,9 @@
-glarmaBinomialPearson <- function(y, X, delta, phiLags, thetaLags,
+glarmaBinomialPearson <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
                                   method  = "FS") {
     r <- ncol(X)
     Ntrial <- y[, 1] + y[, 2]
-    ## Note this was changed from earlier versions for consistency with R's binomial
-    ## glm conventions.
+    ## Note this was changed from earlier versions for consistency
+    ## with R's binomial glm conventions.
     y <- y[, 1]
     n <- length(y)
     p <- length(phiLags)
@@ -29,7 +29,7 @@ glarmaBinomialPearson <- function(y, X, delta, phiLags, thetaLags,
         Z.dd <- array(0, c(s, s, nmpq))
         W.dd <- array(0, c(s, s, nmpq))
     }
-    eta <- X %*% beta
+    if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
     ll <- 0
     ll.d <- matrix(0, ncol = 1, nrow = s)
     ll.dd <- matrix(0, ncol = s, nrow = s)

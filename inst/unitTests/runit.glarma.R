@@ -7,11 +7,12 @@
 ### Functions with name graphicstest.* are run by make if
 ### LEVEL=graphics in call to make
 test.glarma <- function(){
- ## Purpose: level 1 test of Poisson Distribution with Pearson Residuals.
+  ## Purpose: level 1 test of Poisson Distribution with Pearson Residuals.
   data(Polio)
   y <- Polio[, 2]
   X <- as.matrix(Polio[, 3:8])
-  glarmamod <- glarma(y, X, thetaLags = c(1, 2, 5), type = "Poi", method = "FS",
+  glarmamod <- glarma(y, X, thetaLags = c(1, 2, 5), type = "Poi",
+                      method = "FS",
                       residuals = "Pearson", maxit = 100, grad = 2.22e-16)
   ARMA.coef <- coef(glarmamod, "ARMA")
   beta.coef <- coef(glarmamod, "beta")
@@ -21,15 +22,17 @@ test.glarma <- function(){
   checkTrue(max(abs(beta.coef - standard.beta)) < 10^(-7))
   checkTrue(max(abs(ARMA.coef - standard.ARMA)) < 10^(-7))
 
- ## Purpose: level 1 test of Poisson Distribution with Score Residuals
+  ## Purpose: level 1 test of Poisson Distribution with Score Residuals
   y <- Polio[, 2]
   X <- as.matrix(Polio[, 3:8])
-  glarmamod <- glarma(y, X, thetaLags = c(1, 2, 5), type = "Poi", method = "FS",
+  glarmamod <- glarma(y, X, thetaLags = c(1, 2, 5), type = "Poi",
+                      method = "FS",
                       residuals = "Score", maxit = 100, grad = 2.22e-16)
   ARMA.coef <- coef(glarmamod, "ARMA")
   beta.coef <- coef(glarmamod, "beta")
-  standard.beta <- c(0.0437942685983466, -3.89976137445958, -0.007277992577949,
-                      -0.588309451810896, 0.293551629091528, -0.283751085205294)
+  standard.beta <- c(0.0437942685983466, -3.89976137445958,
+                     -0.007277992577949, -0.588309451810896,
+                     0.293551629091528, -0.283751085205294)
   standard.ARMA <- c(0.300327727382111, 0.236693180005699, 0.0182432087875542)
   checkTrue(max(abs(beta.coef - standard.beta)) < 10^(-7))
   checkTrue(max(abs(ARMA.coef - standard.ARMA)) < 10^(-7))
@@ -41,7 +44,7 @@ test.glarma <- function(){
   dimnames(monthmat) <- list(NULL, c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
   months <- unique(months(strptime(RobberyConvict$Date, "%m/%d/%Y"),
-                          abbreviate=TRUE))
+                          abbreviate = TRUE))
 
   for (j in 1:12) {
     monthmat[months(strptime(RobberyConvict$Date, "%m/%d/%Y"),
@@ -51,23 +54,23 @@ test.glarma <- function(){
   RobberyConvict <- cbind(rep(1, datalen), RobberyConvict, monthmat)
   rm(monthmat)
 
-  # LOWER COURT ROBBERY
+  ## LOWER COURT ROBBERY
   y1 <- RobberyConvict$LC.Y
   n1 <- RobberyConvict$LC.N
 
-  Y <- cbind(y1, n1-y1)
+  Y <- cbind(y1, n1 - y1)
 
-  glm.LCRobbery <- glm(Y~-1 + Incpt + Step.2001 +
-                         I(Feb + Mar + Apr + May + Jun + Jul) +
-                         I(Aug + Sep + Oct + Nov + Dec),
-                       data=RobberyConvict, family = binomial(link = logit),
-                       na.action=na.omit,x = TRUE)
+  glm.LCRobbery <- glm(Y ~ -1 + Incpt + Step.2001 +
+                       I(Feb + Mar + Apr + May + Jun + Jul) +
+                       I(Aug + Sep + Oct + Nov + Dec),
+                       data = RobberyConvict, family = binomial(link = logit),
+                       na.action = na.omit, x = TRUE)
 
   X <- glm.LCRobbery$x
 
 
-  #Newton Raphson
-  glarmamod <- glarma(Y, X, phiLags = c(1),type = "Bin", method = "NR",
+  ## Newton Raphson
+  glarmamod <- glarma(Y, X, phiLags = c(1), type = "Bin", method = "NR",
                       residuals = "Pearson", maxit = 100, grad = 1e-6)
 
 
@@ -80,10 +83,11 @@ test.glarma <- function(){
   checkTrue(max(abs(beta.coef - standard.beta)) < 10^(-7))
   checkTrue(max(abs(ARMA.coef - standard.ARMA)) < 10^(-7))
 
- ## Purpose: level 1 test of Negative Binomial Distribution with Pearson Residuals
+  ## Purpose: level 1 test of Negative Binomial Distribution
+  ## with Pearson Residuals
   data(Asthma)
-  y<-Asthma[,1]
-  X<-as.matrix(Asthma[,2:16])
+  y <- Asthma[, 1]
+  X <- as.matrix(Asthma[, 2:16])
   glarmamod <- glarma(y, X, thetaLags = 7, type = "NegBin", method = "NR",
                       residuals = "Pearson", maxit = 100, grad = 1e-6)
   NB.coef <- coef(glarmamod, "NB")

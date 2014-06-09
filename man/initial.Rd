@@ -9,7 +9,7 @@
 }
 
 \usage{
-initial(y, X, type = "Poi", alpha = 1)
+initial(y, X, offset = NULL, type = "Poi", alpha = 1)
 }
 
 \arguments{
@@ -18,6 +18,10 @@ initial(y, X, type = "Poi", alpha = 1)
   \item{X}{Matrix; explanatory variables. A vector of ones should be
     added to the data matrix as the first column for the
     \eqn{\beta}{beta} of the intercept.}
+
+  \item{offset}{Either \code{NULL} or a numeric vector of length equal
+    to the number of cases. Used to specify an \emph{a priori} known
+    component to be included in the linear predictor during fitting.}  
 
   \item{type}{Character; the distribution of the counts.}
 
@@ -58,7 +62,7 @@ data(Polio)
 y <- Polio[, 2]
 X <- as.matrix(Polio[, 3:8])
 
-glmMod <- initial(y, X, "Poi", alpha=1)
+glmMod <- initial(y, X, type = "Poi", alpha=1)
 str(glmMod)
 head(glmMod)
 }

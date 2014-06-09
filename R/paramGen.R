@@ -1,6 +1,7 @@
-deltaGen <- function(y, X, phiInit, thetaInit, type, alpha, beta, alphaInit) {
+deltaGen <- function(y, X, offset = NULL, phiInit, thetaInit, type,
+                     alpha, beta, alphaInit) {
     if (missing(beta)) {
-        GLM <- initial(y, X, type = type, alpha = alpha)
+        GLM <- initial(y, X, offset = offset, type = type, alpha = alpha)
         if (GLM$type == "NegBin") {
             delta <- c(GLM$beta, phiInit, thetaInit, GLM$alpha)
             names(delta) <- c(colnames(X), names(phiInit), names(thetaInit),

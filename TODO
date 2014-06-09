@@ -1,3 +1,20 @@
+glarma with no ARMA component returns the same estimates as glm, and
+the same AIC value, but different null and residual deviances. Needs
+to be fixed. Example is in tests/offsetTest.R.
+
+--------------------------------------------
+
+extractAIC.glarma should perhaps be changed, to return the equivalent
+degrees of freedom and the AIC as for extractAIC.glm. That would give
+consistency.
+
+--------------------------------------------
+
+add na.action to models, and napredict in fitted and predict methods?
+
+---------------------------------------------
+
+
 Consider possible change to initial() so that glm model is not fitted
 without an intercept. This is so the null degrees of freedom will be
 number of observations - 1, rather than number of observations. Then
@@ -7,4 +24,98 @@ print.glarma and print.summary.glarma
 Change glarma to accept formula glm component
 
 
+______________________________________________________________________________
+
+Change e.d, e.dd in binomial identity residuals program to have -
+(minus sign) inserted after = (equal) sign. Recorded 24/4/14 by WD
+from Jieyi's report.
+
+Replace
+e.d[, tmpq] <- n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
+by
+e.d[, tmpq] <- - n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
+and replace
+e.dd[, , tmpq] <- n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
+                              W.d[, tmpq] %o% W.d[, tmpq] + W.dd[, , tmpq])
+by
+e.dd[, , tmpq] <- - n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
+                              W.d[, tmpq] %o% W.d[, tmpq] + W.dd[, , tmpq])
+______________________________________________________________________________
+In Binary Score residuals replace
+e.dd[, , tmpq] <- e.dd[, , tmpq] <- (-2 * pt + 1 + pt *
+by
+e.dd[, , tmpq] <- e.dd[, , tmpq] <- (-2 * pt + 1 + pt^2 * [square of pt]
+
+Add offset term to Poisson and negative binomial glarma
+programs.
+Recorded 24/4/14 by WD after query from Jake Olivier.
+
+
+_______________________________________________________________________________
+
+#Incorporating offset terms in the linear predictor...
+# following changes made in all sub programs etc...
+
+model<-svn~abac08+lnOMVD+frisat+offset(offset)
+
+temp<-glm(model, family=poisson,na.action=na.exclude, data=data,x=T)
+
+
+# can extract offset from glm fit using:
+
+temp$offset
+
+
+
+# changed glarma function argument list to include `offset=0'
+glarma <- function(y, X, offset=0, type = "Poi", method = "FS",
+                   residuals = "Pearson",
+                   phiLags,  thetaLags, phiInit, thetaInit, beta, alphaInit,
+                   alpha = 1, maxit = 30, grad = 2.22e-16)
+
+# and changed inside glarma:
+
+delta <- deltaGen(y = y, X = X, offset=offset,
+                  phiInit = phi.init, thetaInit = theta.init,
+                  type = type, alpha = alpha, beta = beta,
+                  alphaInit = alphaInit)
+
+
+# and changed inside glarma:
+
+GL <- glarmaPoissonPearson(y, X, offset=offset, delta, phiLags, thetaLags,
+                           method = method)
+
+
+# at all relevant places.
+
+# and changed inside deltaGen
+
+GLM <- initial(y, X, offset=offset, type = type, alpha = alpha)
+
+
+# Changed function argument list to include `offset=0':
+
+glarmaPoissonPearson <- function(y, X, offset=0, delta, phiLags, thetaLags,
+                                 method = "FS")
+
+
+
+# inside glarmaPoissonPearson program... and all others like this:
+
+eta <- X %*% beta + offs
+
+---------------------------------------------
+Notes on na.action as used in glm
+
+na.action is an S3 generic with a single method, na.action.default
+Takes value from the na.action list element from an object, or from
+the na.action attribute of an object.
+
+From ?na.exclude, we probably want to use na.exclude along with
+nasresid and napredict so that our plotting functions don't fall
+over. There is also na.contiguous to consider because of time series.
+
+The modeling functions will need to have an na.action argument
+added. They will need to return an na.action element as well.
 

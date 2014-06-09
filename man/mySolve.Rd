@@ -55,7 +55,7 @@ delta <- c("Intcpt" = 0.2069383, "Trend" = -4.7986615 ,
            "theta_1" = 0, "theta_2"= 0, "theta_5"= 0 )
 
 ## Calculate the second derivative of the loglikelihood
-glarmamod <- glarmaPoissonPearson(y, X, delta, phiLags = phi.lags,
+glarmamod <- glarmaPoissonPearson(y, X, delta = delta, phiLags = phi.lags,
                            thetaLags = theta.lags, method = "FS")
 
 ## estimate the covariance matrix of the estimators from the second

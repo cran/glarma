@@ -28,23 +28,30 @@
 }
 
 \usage{
-glarma(y, X, type = "Poi", method = "FS", residuals = "Pearson",
+glarma(y, X, offset = NULL, type = "Poi", method = "FS", residuals = "Pearson",
        phiLags,  thetaLags, phiInit, thetaInit, beta, alphaInit,
        alpha = 1, maxit = 30, grad = 2.22e-16)
 
-glarmaPoissonPearson(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaPoissonPearson(y, X, offset = NULL, delta, phiLags, thetaLags,
+                     method =  "FS")
 
-glarmaPoissonScore(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaPoissonScore(y, X, offset = NULL, delta, phiLags, thetaLags,
+                   method =  "FS")
 
-glarmaBinomialIdentity(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaBinomialIdentity(y, X, offset = NULL, delta, phiLags, thetaLags,
+                       method =  "FS")
 
-glarmaBinomialPearson(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaBinomialPearson(y, X, offset = NULL, delta, phiLags, thetaLags,
+                      method =  "FS")
 
-glarmaBinomialScore(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaBinomialScore(y, X, offset = NULL, delta, phiLags, thetaLags,
+                    method =  "FS")
 
-glarmaNegBinPearson(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaNegBinPearson(y, X, offset = NULL, delta, phiLags, thetaLags,
+                    method =  "FS")
 
-glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
+glarmaNegBinScore(y, X, offset = NULL, delta, phiLags, thetaLags,
+                  method =  "FS")
 }
 
 \arguments{
@@ -57,6 +64,10 @@ glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
   \item{X}{Matrix; the explanatory variables. A vector of ones should be
     added to the data matrix as the first column for the \code{beta} of
     the intercept.}
+
+  \item{offset}{Either \code{NULL} or a numeric vector of length equal
+    to the number of cases. Used to specify an \emph{a priori} known
+    component to be included in the linear predictor during fitting.}
 
   \item{beta}{Numeric vector; initial values of the regression
     coefficients.}
@@ -125,8 +136,8 @@ glarmaNegBinScore(y, X, delta, phiLags, thetaLags, method =  "FS")
   computed as follows.
 
   The linear predictor for the response is
-  \deqn{\log{\mu_t} = W_t = X_t^T\beta + Z_t.}{log(mu) = W =%
-    transpose(X_t) * beta + Z_t.}
+  \deqn{\log{\mu_t} = W_t = X_t^T\beta + \mbox{offset} + Z_t.}{log(mu_t) = %
+    W_t = transpose(X_t) * beta + offset + Z_t.}
 
   The infinite moving average from the linear predictor is
   \deqn{Z_t = \sum_{i=1}^\infty \gamma_i e_{t-i}.}{Z_t = sum(gamma_i *%
@@ -245,6 +256,8 @@ delta_(k) + Omega(delta_k) * first derivative of log(delta_k)}
 
   \item{X}{the model matrix.}
 
+  \item{offset}{the offset, \code{NULL} if there is no offset.}
+
   \item{type}{the distribution of the counts.}
 
   \item{method}{the method of iteration used.}
@@ -273,7 +286,8 @@ delta_(k) + Omega(delta_k) * first derivative of log(delta_k)}
 
 \seealso{
   Additional examples may be found in \code{\link{Asthma}},
-  \code{\link{OxBoatRace}}, and \code{\link{RobberyConvict}}.
+  \code{\link{OxBoatRace}}, \code{\link{RobberyConvict}}, and
+  \code{\link{DriverDeaths}}.
 }
 
 \author{

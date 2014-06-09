@@ -17,9 +17,11 @@
 
 
 
-glarma <- function(y, X, type = "Poi", method = "FS", residuals = "Pearson",
+glarma <- function(y, X, offset = NULL, type = "Poi", method = "FS",
+                   residuals = "Pearson",
                    phiLags,  thetaLags, phiInit, thetaInit, beta, alphaInit,
                    alpha = 1, maxit = 30, grad = 2.22e-16) {
+
   call <- match.call()
   phi <- phiGen(phiLags, phiInit)
   phiLags <- phi[[1]]
@@ -29,7 +31,8 @@ glarma <- function(y, X, type = "Poi", method = "FS", residuals = "Pearson",
   thetaLags <- theta[[1]]
   theta.init <- theta[[2]]
 
-  delta <- deltaGen(y = y, X = X, phiInit = phi.init, thetaInit = theta.init,
+  delta <- deltaGen(y = y, X = X, offset = offset,
+                    phiInit = phi.init, thetaInit = theta.init,
                     type = type, alpha = alpha, beta = beta,
                     alphaInit = alphaInit)
 
@@ -42,31 +45,39 @@ glarma <- function(y, X, type = "Poi", method = "FS", residuals = "Pearson",
 
   while ((iter < maxit) & (min > grad) & (ErrCode == 0)) {
     if (type == "Poi" & residuals == "Pearson")
-      GL <- glarmaPoissonPearson(y, X, delta, phiLags, thetaLags,
+
+      GL <- glarmaPoissonPearson(y, X, offset = offset, delta,
+                                 phiLags, thetaLags,
                                  method = method)
 
     if (type == "NegBin" & residuals == "Pearson")
-      GL <- glarmaNegBinPearson(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaNegBinPearson(y, X, offset = offset, delta,
+                                phiLags, thetaLags,
                                 method = method)
 
     if (type == "Bin" & residuals == "Pearson")
-      GL <- glarmaBinomialPearson(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaBinomialPearson(y, X, offset = offset, delta,
+                                  phiLags, thetaLags,
                                   method = method)
 
     if (type == "Poi" & residuals == "Score")
-      GL <- glarmaPoissonScore(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaPoissonScore(y, X, offset = offset, delta,
+                               phiLags, thetaLags,
                                method = method)
 
     if (type == "NegBin" & residuals == "Score")
-      GL <- glarmaNegBinScore(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaNegBinScore(y, X, offset = offset, delta,
+                              phiLags, thetaLags,
                               method = method)
 
     if (type == "Bin" & residuals == "Score")
-      GL <- glarmaBinomialScore(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaBinomialScore(y, X, offset = offset, delta,
+                                phiLags, thetaLags,
                                 method = method)
 
     if (type == "Bin" & residuals == "Identity")
-      GL <- glarmaBinomialIdentity(y, X, delta, phiLags, thetaLags,
+      GL <- glarmaBinomialIdentity(y, X, offset = offset, delta,
+                                   phiLags, thetaLags,
                                    method = method)
 
     temp <- mySolve(-GL$ll.dd)
@@ -86,19 +97,24 @@ glarma <- function(y, X, type = "Poi", method = "FS", residuals = "Pearson",
                    "fails to converge from the initial estimates."))
     }
   }
+
+
   ## keep model structure
   names(GL)[which(names(GL) == "ll")] <- "logLik"
   names(GL)[which(names(GL) == "ll.d")] <- "logLikDeriv"
   names(GL)[which(names(GL) == "ll.dd")] <- "logLikDeriv2"
   names(GL)[which(names(GL) == "e")] <- "residuals"
-  GL$null.deviance <- initial(y, X, type = type, alpha = alpha)$null.deviance
-  GL$df.null <- initial(y, X, type = type, alpha = alpha)$df.null
+  GL$null.deviance <- initial(y, X, offset = offset, type = type,
+                              alpha = alpha)$null.deviance
+  GL$df.null <- initial(y, X, offset = offset, type = type,
+                        alpha = alpha)$df.null
   GL$r         <- ncol(X)
   GL$pq        <- length(phiLags) + length(thetaLags)
   GL$phiLags   <- phiLags
   GL$thetaLags <- thetaLags
   GL$y         <- y
   GL$X         <- X
+  GL$offset    <- offset
   GL$type      <- type
   GL$method    <- method
   GL$residType <- residuals
@@ -125,16 +141,19 @@ print.glarma <- function(x, ...) {
      cat("Negative Binomial Parameter:\n")
      print.default(format(x$delta[length(x$delta)]),
                    print.gap = 2, quote = FALSE)
-     cat("\nAutoregressive Coefficients:\n")
-     print.default(format(x$delta[(ncol(x$X) + 1):(ncol(x$X) +
-                                                   length(x$thetaLags) +
-                                                   length(x$phiLags))]),
-                   print.gap = 2, quote = FALSE)
-   }
-   else{
-     cat("Autoregressive Coefficients:\n")
-     print.default(format(x$delta[(ncol(x$X) + 1):length(x$delta)]),
-                   print.gap = 2, quote = FALSE)
+     if (x$pq > 0){
+       cat("\nGLARMA Coefficients:\n")
+       print.default(format(x$delta[(ncol(x$X) + 1):(ncol(x$X) +
+                                                     length(x$thetaLags) +
+                                                     length(x$phiLags))]),
+                     print.gap = 2, quote = FALSE)
+     }
+   } else{
+     if (x$pq > 0){
+         cat("GLARMA Coefficients:\n")
+         print.default(format(x$delta[(ncol(x$X) + 1):length(x$delta)]),
+                       print.gap = 2, quote = FALSE)
+     }
    }
    cat("\nLinear Model Coefficients:\n")
    print.default(format(x$delta[1:ncol(x$X)]), print.gap = 2,

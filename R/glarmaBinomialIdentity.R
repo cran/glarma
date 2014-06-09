@@ -1,4 +1,4 @@
-glarmaBinomialIdentity <- function(y, X, delta, phiLags, thetaLags,
+glarmaBinomialIdentity <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
                                    method = "FS") {
     n.trial <- y[, 1] + y[, 2]
     ## Note this was changed from earlier versions for consistency with R's binomial
@@ -29,7 +29,7 @@ glarmaBinomialIdentity <- function(y, X, delta, phiLags, thetaLags,
         Z.dd <- array(0, c(s, s, nmpq))
         W.dd <- array(0, c(s, s, nmpq))
     }
-    eta   <- X %*% beta
+    if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
     ll    <- 0
     ll.d  <- matrix(0, ncol = 1, nrow = s)
     ll.dd <- matrix(0, ncol = s, nrow = s)
@@ -86,12 +86,12 @@ glarmaBinomialIdentity <- function(y, X, delta, phiLags, thetaLags,
         mu[tmpq] <- n.trial[time] * pt
         e[tmpq] <- (y[time] - mu[tmpq])
 
-        e.d[, tmpq] <- n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
+        e.d[, tmpq] <- -n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
 
 
         if (method == "NR") {
 
-            e.dd[, , tmpq] <- n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
+            e.dd[, , tmpq] <-  -n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
                               W.d[, tmpq] %o% W.d[, tmpq] + W.dd[, , tmpq])
         }
         ## update likelihood and derivatives.

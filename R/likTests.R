@@ -14,19 +14,37 @@ likeTests <- likTests <- function(object) {
 
     y <- object$y
     X <- object$X
+    offset <- object$offset
     type <- object$type
 
-    if (type == "Poi")
-        (GLM <- glm(y ~ -1 + X, family = poisson, x = TRUE))
+    if (type == "Poi"){
+        if (is.null(offset)){
+            (GLM <- glm(y ~ -1 + X, family = poisson, x = TRUE))
+        } else {
+            (GLM <- glm(y ~ -1 + X, family = poisson,
+                        offset = offset, x = TRUE))
+        }
+    }
 
-
-    if (type == "Bin")
-        (GLM <- glm(y ~ -1 + X, family = binomial(link = logit),
+    if (type == "Bin"){
+        if (is.null(offset)){
+            (GLM <- glm(y ~ -1 + X, family = binomial(link = logit),
                 na.action = na.omit, x = TRUE))
+        } else {
+            (GLM <- glm(y ~ -1 + X, family = binomial(link = logit),
+                        na.action = na.omit, offset = offset, x = TRUE))
+        }
+    }
 
-    if (type == "NegBin")
+    if (type == "NegBin"){
         ## fix up neg bin case later
-        (GLM <- glm.nb(y ~ -1 + X, init.theta = 1, x = TRUE))
+        if (is.null(offset)){
+            (GLM <- glm.nb(y ~ -1 + X, init.theta = 1, x = TRUE))
+        } else {
+            (GLM <- glm.nb(y ~ -1 + X, init.theta = 1,
+                           offset = offset, x = TRUE))
+        }
+    }
 
 
     ll.null <- r - GLM$aic/2
@@ -47,11 +65,16 @@ likeTests <- likTests <- function(object) {
         LRT.P <- 1 - pchisq(LRT, pq)
 
         ## Wald
-        thetahat <- object$delta[r + 1:pq]
-        Wald <- (thetahat) %*%
+        if (pq == 0) {
+            Wald <- 0
+            Wald.P <- 1
+        } else {
+            thetahat <- object$delta[r + 1:pq]
+            Wald <- (thetahat) %*%
                 solve(object$cov[r + 1:pq, r + 1:pq]) %*%
-                thetahat
-        Wald.P <- 1 - pchisq(Wald, pq)
+                    thetahat
+            Wald.P <- 1 - pchisq(Wald, pq)
+        }
 
     }
     likTests <- matrix(c(LRT, Wald, LRT.P, Wald.P), ncol = 2)

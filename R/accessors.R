@@ -78,6 +78,11 @@ nobs.glarma <- function(object, ...) length(object$y)
 
 ## Extract Model Data Frame
 model.frame.glarma <- function(formula, ...) {
-  as.data.frame(cbind(y = formula$y, formula$X))
+    if (is.null(formula$offset)) {
+        as.data.frame(cbind(y = formula$y, formula$X))
+    } else {
+        as.data.frame(cbind(y = formula$y, formula$X,
+                            "(offset)" = formula$offset))
+    }
 }
 

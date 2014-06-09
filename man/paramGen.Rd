@@ -13,7 +13,7 @@
 }
 
 \usage{
-deltaGen(y, X, phiInit, thetaInit, type, alpha,
+deltaGen(y, X, offset = NULL, phiInit, thetaInit, type, alpha,
          beta, alphaInit)
 thetaGen(thetaLags, thetaInit)
 phiGen(phiLags, phiInit)
@@ -25,6 +25,10 @@ phiGen(phiLags, phiInit)
   \item{X}{Matrix; the explanatory variables. A vector of ones should be
     added to the data matrix as the first column for the \code{beta} of
     the intercept.}
+
+  \item{offset}{Either \code{NULL} or a numeric vector of length equal
+    to the number of cases. Used to specify an \emph{a priori} known
+    component to be included in the linear predictor during fitting.}
 
   \item{phiInit}{Numeric vector; initial values for the
     corresponding AR orders.}

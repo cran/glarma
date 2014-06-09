@@ -1,9 +1,10 @@
-glarmaBinomialScore <- function(y, X, delta, phiLags, thetaLags,
+
+glarmaBinomialScore <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
                                 method  = "FS") {
     r      <- ncol(X)
     n.trial <- y[, 1] + y[, 2]
-    ## Note this was changed from earlier versions for consistency with R's binomial
-    ## glm conventions.
+    ## Note this was changed from earlier versions for consistency
+    ## with R's binomial glm conventions.
     y <- y[, 1]
     n <- length(y)
     p <- length(phiLags)
@@ -29,7 +30,7 @@ glarmaBinomialScore <- function(y, X, delta, phiLags, thetaLags,
         Z.dd <- array(0, c(s, s, nmpq))
         W.dd <- array(0, c(s, s, nmpq))
     }
-    eta <- X %*% beta
+    if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
     ll <- 0
     ll.d <- matrix(0, ncol = 1, nrow = s)
     ll.dd <- matrix(0, ncol = s, nrow = s)
@@ -87,12 +88,8 @@ glarmaBinomialScore <- function(y, X, delta, phiLags, thetaLags,
         e[tmpq] <- (y[time] - mu[tmpq])/(n.trial[time] * pt * (1 - pt))
         e.d[, tmpq] <- (-1 + pt * e[tmpq] - e[tmpq] * (1 - pt)) * W.d[, tmpq]
         if (method  == "NR") {
-            e.dd[, , tmpq] <- e.dd[, , tmpq] <- (-2 * pt + 1 + pt *
-                                                e[tmpq] + e[tmpq] *
-                                                (1 - pt)^2) * W.d[, tmpq] %o%
-                                                W.d[, tmpq] +
-                                                (e.d[, tmpq]/W.d[, tmpq]) *
-                                                W.dd[, , tmpq]
+        e.dd[, , tmpq] <- (-2*pt + 1 + pt^2*e[tmpq] + e[tmpq]*(1 - pt)^2) * W.d[, tmpq] %o%W.d[, tmpq] + 
+          (-1 + pt * e[tmpq] - e[tmpq] * (1 - pt))*W.dd[, , tmpq]
         }
         ## update likelihood and derivatives.
         ll <- ll + y[time] * W[tmpq] - n.trial[time] * log(1 + exp(W[tmpq])) +

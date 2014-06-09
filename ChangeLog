@@ -1,3 +1,118 @@
+2014-07-31    <d.scott@auckland.ac.nz>
+
+	* glarma.Rd, summary.glarma.Rd to add offset and pq respectively
+	to the components of the lists returned by glarma and summary.glarma.
+
+	* likTests, summary.glarma, print.summary.glarma, print.glarma
+	changed so that they behave properly if there is no ARMA
+	component. likTests now checks for existence of an ARMA component
+	and returns a 0 statistic and p-value 1 if there is
+	none. print.summary.glarma and print.glarma also check for an ARMA
+	component and only try to print ARMA coefficients if there are
+	some to print. The list returned by summary.glarma had to be
+	changed to include pq so the test could be included in
+	print.summary.glarma.
+
+	* glarma, likTests, model.frame.glarma changed to include the
+	possibility of an offset. Element offset was added to the list
+	returned by glarma. In likTests a conditional statement added an
+	offset to the base glm if an offset was present in the glarma
+	model. In model.frame.glarma the offset was added to the model
+	frame with the name "(offset)" which is what happens with glm when
+	the offset is specified using a separate argument (but which is
+	different to what occurs with glm if the offset is specified as
+	part of the linear model).
+
+2014-07-25    <d.scott@auckland.ac.nz>
+
+	* *.Rd files changed to add offset argument where needed to agree
+	with modified code. Examples changed in a couple of cases where
+	arguments were assigned by position but position had changed
+	because of addition of offset argument.
+
+2014-07-24    <d.scott@auckland.ac.nz>
+
+	* DriverDeaths.Rd and DriverDeaths.RData created as an example of the
+	use of an offset.
+
+2014-06-09    <w.dunsmuir@unsw.edu.au>
+
+
+	* glarma.R and summary.glarma.R changed to modify labelling on
+	output of GLARMA parameters. Old labelling "AR parameters" changed
+	to "GLARMA parameters" so as to be applicable for moving average
+	as well as autoregressive or mixed structures.
+
+	* glarmaBinomialIdentity.R changed to insert missing minus (-)
+	signs in e.d and e.dd as follows:
+
+	Replace
+	e.d[, tmpq] <- n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
+	by
+	e.d[, tmpq] <- -n.trial[time] * pt * (1 - pt) * W.d[, tmpq]
+	and replace
+	e.dd[, , tmpq] <- n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
+                              W.d[, tmpq] %o% W.d[, tmpq] + W.dd[, , tmpq])
+	by
+	e.dd[, , tmpq] <- -n.trial[time] * pt * (1 - pt) * ((1 - 2 * pt) *
+                              W.d[, tmpq] %o% W.d[, tmpq] + W.dd[, , tmpq])
+
+    * glarmaBinomialScore.R changed to correct code for e.dd as follows:
+	Replace
+	 e.dd[, , tmpq] <- e.dd[, , tmpq] <- (-2 * pt + 1 + pt *
+                                                e[tmpq] + e[tmpq] *
+                                                (1 - pt)^2) * W.d[, tmpq] %o%
+                                                W.d[, tmpq] +
+                                                (e.d[, tmpq]/W.d[, tmpq]) *
+                                                W.dd[, , tmpq]
+	by
+        e.dd[, , tmpq] <- (-2*pt + 1 + pt^2*e[tmpq] +
+	e[tmpq]*(1 - pt)^2) * W.d[, tmpq] %o%W.d[, tmpq] +
+         (-1 + pt * e[tmpq] - e[tmpq] * (1 - pt))*W.dd[, , tmpq]
+
+	* glarma.R changed. Offset added to Poisson, binomial and negative
+	binomial models and to initialization.
+
+	Changes:
+	glarma <- function(y, X, offset = NULL, type = "Poi", method = "FS",
+                          residuals = "Pearson",
+                          phiLags,  thetaLags, phiInit, thetaInit, beta,
+	                  alphaInit,
+                          alpha = 1, maxit = 30, grad = 2.22e-16)
+
+	Inside glarma in all relevant places
+	GL <- glarmaPoissonPearson(y, X, offset = offset, delta,
+	                           phiLags, thetaLags,
+                                   method = method)
+
+	* initial.R changed. Argument offset = NULL added to arguments and
+	calls to glm. For example
+	(GLM <- glm(y ~ -1 + X, offset = offset, family = poisson, x = TRUE))
+        GLMInt <- glm(y ~ X, offset = offset, family = poisson, x = TRUE)
+
+	* deltaGen.R changed. Argument offset = NULL added to arguments and in
+	call to initial()
+
+	* glarmaNegBinomial, glarmaNegBinScore, glarmaPoissonPearson,
+	glarmaPoissonScore, glarmaBinomialPearson, glarmaBinomialScore
+	and glarmaBinomialIdentity changed. Argument offset = NULL added.
+	To incorporate offset:
+	eta   <- X %*% beta
+	replaced by
+        if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
+
+	* in initial defined an offset to be compatible with glm.nb:
+
+	     offset.nb<-if(is.null(offset)) rep(0,length(y)) else offset
+        (GLM <- glm.nb(y ~ -1 + X + offset(offset.nb),
+                       init.theta = alpha, x = TRUE))
+        GLMInt <- glm.nb(y ~ X + offset(offset.nb),
+                         init.theta = alpha, x = TRUE)
+
+	* data set SvndDeathsUtah.Rdata added for example on using offset
+	term in a Poisson GLARMA model.
+	Code for fitting model is in file UTAH_svn_offset_example.R
+
 2014-01-17    <d.scott@auckland.ac.nz>
 
 	* DESCRIPTION and NAMESPACE altered to make MASS Imports instead

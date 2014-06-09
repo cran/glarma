@@ -42,6 +42,7 @@ glarmaModelEstimates(object)
     regression structure as the GLARMA model.}
   \item{phi.lags}{the component from \code{object}.}
   \item{theta.lags}{the component from \code{object}.}
+  \item{pq}{the component from \code{object}.}
   \item{iter}{the component from \code{object}.}
   \item{deviance}{the deviance of the fitted model.}
   \item{df.residual}{the degrees of freedom of the fitted model.}

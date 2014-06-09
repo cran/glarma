@@ -1,5 +1,4 @@
-
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE---------------------------------
 library(knitr)
 opts_chunk$set(comment = NA, fig.path='Figures/glarma',
                fig.align = 'center', fig.show = 'hold')
@@ -13,13 +12,11 @@ knit_hooks$set(rexample = function(before, options, envir) {
 }
 )
 
-
-## ----echo=FALSE, warning = FALSE-----------------------------------------
+## ----echo=FALSE, warning = FALSE--------------------------
 library(MASS)
 library(glarma)
 
-
-## ----asthma, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE------
+## ----asthma, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 data(Asthma)
 y <- Asthma[, 1]
 X <- as.matrix(Asthma[, 2:16])
@@ -29,13 +26,11 @@ glarmamod <- glarma(y, X, thetaLags = 7, type = "NegBin", method = "NR",
 glarmamod
 summary(glarmamod)
 
-
 ## ----asthmaplot, fig.width = 4, fig.height = 4, out.width = '.4\\linewidth', fig.cap = "Diagnostic plots for the asthma model"----
 par(mar = c(4,4,3,.1), cex.lab = 0.95, cex.axis = 0.9,
     mgp = c(2,.7,0), tcl = -0.3, las = 1)
 plot(glarmamod, which = c(1,2,3,5),
      titles = list(NULL, NULL, NULL, "PIT for GLARMA (Neg. Binomial)"))
-
 
 ## ----courtmonths, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 data(RobberyConvict)
@@ -52,7 +47,6 @@ for (j in 1:12) {
 
 RobberyConvict <- cbind(rep(1, datalen), RobberyConvict, monthmat)
 rm(monthmat)
-
 
 ## ----courtmodel, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 ### Prepare the data for fitting a binomial
@@ -74,10 +68,8 @@ glarmamod <- glarma(Y, X, phiLags = c(1), type = "Bin", method = "NR",
                     residuals = "Pearson", maxit = 100, grad = 1e-6)
 summary(glarmamod)
 
-
 ## ----courtplot, fig.width = 4, fig.height = 4, out.width = '.4\\linewidth', fig.cap = "Diagnostic plots for the court conviction model"----
 par(mar = c(4,4,3,.1), cex.lab = 0.95, cex.axis = 0.9,
     mgp = c(2,.7,0), tcl = -0.3, las = 1)
 plot(glarmamod)
-
 

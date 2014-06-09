@@ -16,8 +16,8 @@
 ####################################################################
 
 
-glarmaPoissonScore <- function(y, X, delta, phiLags, thetaLags,
-                                 method =  "FS"){
+glarmaPoissonScore <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
+                               method =  "FS"){
   r     <- ncol(X)
   n     <- length(y)
   p     <- length(phiLags)
@@ -45,8 +45,8 @@ glarmaPoissonScore <- function(y, X, delta, phiLags, thetaLags,
     Z.dd <- array(0, c(s, s, nmpq))
     W.dd <- array(0, c(s, s, nmpq))
   }
-  eta <- X %*% beta
-
+  if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
+  
   ll <- 0
   ll.d <- matrix(0, ncol = 1, nrow = s)
   ll.dd <- matrix(0, ncol = s, nrow = s)
@@ -112,14 +112,20 @@ glarmaPoissonScore <- function(y, X, delta, phiLags, thetaLags,
 
     ## Poisson mean
     mu[tmpq]    <- exp(W[tmpq])
-    ## Pearson Residuals
+    ## Score Residuals
     e[tmpq]     <- (y[time] - mu[tmpq])/mu[tmpq]
-    ## update derivates of Pearson Residuals for Poisson
+    ## update derivates of Score Residuals for Poisson
     e.d[, tmpq] <- -(1 + e[tmpq]) * W.d[, tmpq]
     if (method == "NR") {
       e.dd[, , tmpq] <- -(1 + e[tmpq]) * W.dd[, , tmpq] - (e.d[, tmpq] *
                         W.d[, tmpq]) %o% W.d[, tmpq]
     }
+# Note the above could be simplified to:
+#    e.d[, tmpq] <- -(y[time]/mu[tmpq]) * W.d[, tmpq]
+#    if (method == "NR") {
+#   e.dd[, , tmpq] <- -(y[time]/mu[tmpq]) * ( W.dd[, , tmpq] -
+#			W.d[, tmpq]) %o% W.d[, tmpq]                    
+#    }
 
     ## update likelihood and derivatives for Poisson
     ll <- ll + y[time] * W[tmpq] - mu[tmpq] - log(factorial(y[time]))

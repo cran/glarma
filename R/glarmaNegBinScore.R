@@ -1,4 +1,4 @@
-glarmaNegBinScore <- function(y, X, delta, phiLags, thetaLags,
+glarmaNegBinScore <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
                               method  = "FS") {
     r <- ncol(X)
     n <- length(y)
@@ -29,7 +29,7 @@ glarmaNegBinScore <- function(y, X, delta, phiLags, thetaLags,
         Z.dd <- array(0, c(s, s, nmpq))
         W.dd <- array(0, c(s, s, nmpq))
     }
-    eta <- X %*% beta
+    if(is.null(offset)) eta<-X %*% beta else eta<- X %*% beta + offset
     ll <- 0
     ll.d <- matrix(0, ncol = 1, nrow = s)
     ll.dd <- matrix(0, ncol = s, nrow = s)

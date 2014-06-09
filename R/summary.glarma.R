@@ -11,6 +11,7 @@ summary.glarma <- function(object, tests = TRUE, ...) {
     sum$df.residual <- NROW(object$y) - NROW(object$delta)
     sum$phi.lags <- object$phiLags
     sum$theta.lags <- object$thetaLags
+    sum$pq <- object$pq
     sum$iter <- object$iter
     sum$deviance.resid <- object$residuals
     if (tests) sum$likTests <- unclass(likTests(object))
@@ -55,11 +56,17 @@ print.summary.glarma <- function(x, digits = max(3L, getOption("digits") - 3L),
     if (x$methods$type == "NegBin"){
         cat("\nNegative Binomial Parameter:\n")
         printCoefmat(x$coefficients3, digits = digits, signif.legend = F, ...)
-        cat("\nAutoregressive Coefficients:\n")
-        printCoefmat(x$coefficients2, digits = digits, signif.legend = F, ...)
+        if (x$pq > 0) {
+            cat("\nGLARMA Coefficients:\n")
+            printCoefmat(x$coefficients2, digits = digits,
+                         signif.legend = F, ...)
+        }
     } else{
-        cat("\nAutoregressive Coefficients:\n")
-        printCoefmat(x$coefficients2, digits = digits, signif.legend = F, ...)
+        if (x$pq > 0) {
+            cat("\nGLARMA Coefficients:\n")
+            printCoefmat(x$coefficients2, digits = digits,
+                         signif.legend = F, ...)
+        }
     }
     cat("\nLinear Model Coefficients:\n")
     printCoefmat(x$coefficients1, digits = digits,
