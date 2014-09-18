@@ -1,3 +1,19 @@
+2014-09-25    <d.scott@auckland.ac.nz>
+
+	* plot.glarma changed to add four extra plots using randomized
+	residuals. Default plots changed, dropping three of the original
+	plots and adding three randomized residual plots (histogram, Q-Q
+	plot and acf) 
+
+2014-09-23    <d.scott@auckland.ac.nz>
+
+	* normRandPIT added to create randomized residuals
+
+2014-09-18    <d.scott@auckland.ac.nz>
+
+	* forecast, forecast.glarmamod added as generic and method for
+	forecasting using objects of class glarmamod
+
 2014-07-31    <d.scott@auckland.ac.nz>
 
 	* glarma.Rd, summary.glarma.Rd to add offset and pq respectively

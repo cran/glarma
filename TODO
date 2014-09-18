@@ -1,3 +1,44 @@
+print, summary and plot methods for forecast objects
+
+------------------------------------------
+BARMA fitting and associated methods
+
+------------------------------------------
+aic for negative binomial fit does not count the alpha as a parameter hence
+the value if 2 less than that produced by glm.nb for the no glarma fit.
+-------------------------------------------
+
+
+standard errors (from Fisher Scoring or Newton Raphson) for glarma with no glarma fit do not match those for glm.nb 
+NEED to check if this also occurs for other distributions (Poisson, binomial). 
+
+------------------------------------------
+
+
+glarma neg bin calculates likelihood using log(gamma...) better to do as in 
+glmnb and use loggamma:
+glarmaNegBinuses:
+
+ll <- ll + log(gamma(alpha + yt)/(gamma(alpha) * gamma(yt + 
+                                                         1))) + alpha * log(alpha/(alpha + mut)) + yt * log(mut/(alpha + 
+                                                                                                                   mut))
+
+glmnb uses:
+
+loglik <- function(n, th, mu, y, w) sum(w * (lgamma(th + 
+                                                      y) - lgamma(th) - lgamma(y + 1) + th * log(th) + y * 
+                                               log(mu + (y == 0)) - (th + y) * log(th + mu)))
+
+
+
+modify glarmaNegBin to use: 
+
+ll <- ll<- ll+ (lgamma(alpha + yt) - lgamma(alpha) - lgamma(yt + 1) + alpha * log(alpha) + 
+                  yt * log(mut + (yt == 0)) - (alpha + yt) * log(alpha + mut)))
+
+-------------------------------------------
+
+
 glarma with no ARMA component returns the same estimates as glm, and
 the same AIC value, but different null and residual deviances. Needs
 to be fixed. Example is in tests/offsetTest.R.

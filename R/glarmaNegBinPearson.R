@@ -118,8 +118,13 @@ glarmaNegBinPearson <- function(y, X, offset = NULL, delta, phiLags,
 
         ## update likelihood and derivatives.
 
-        ll <- ll + log(gamma(alpha + yt)/(gamma(alpha) * gamma(yt + 1))) +
-              alpha * log(alpha/(alpha + mut)) + yt * log(mut/(alpha + mut))
+    #    ll <- ll + log(gamma(alpha + yt)/(gamma(alpha) * gamma(yt + 1))) +
+    #          alpha * log(alpha/(alpha + mut)) + yt * log(mut/(alpha + mut))
+    # altered 1/8/14 by WD to avoid overflow in gamma function call for large counts
+
+      ll<- ll+ lgamma(alpha + yt) - lgamma(alpha) - lgamma(yt + 1) + alpha * log(alpha) + 
+                  yt * log(mut + (yt == 0)) - (alpha + yt) * log(alpha + mut)
+
         ll.W <- alpha * (yt - mut)/(mut + alpha)
         ll.a <- (digamma(alpha + yt) - digamma(alpha) +
                 (mut - yt)/(mut + alpha) + log(alpha/(mut + alpha)))

@@ -12,6 +12,8 @@ export(mySolve)
 export(likTests, likeTests)
 export(histPIT)
 export(qqPIT)
+export(normRandPIT)
+export(forecast, forecast.glarma)
 ################################################
 ## S3 classes and methods
 ################################################
@@ -26,5 +28,5 @@ S3method(extractAIC, glarma)
 S3method(logLik, glarma)
 S3method(model.frame, glarma)
 S3method(plot, glarma)
-
+S3method(forecast, glarma)
 

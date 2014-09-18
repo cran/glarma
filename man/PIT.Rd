@@ -61,7 +61,7 @@ Predictive model assessment for count data. \emph{Biometrics},
 \bold{65}, 1254--1261.
 
 Jung, Robert.C and Tremayne, A.R (2011) Useful models for time series
-of counts or simply wrong ones? \emph{AStA Advances in Statistical
+of counts or simply wrong ones? \emph{Advances in Statistical
 Analysis}, \bold{95}, 59--91.
 }
 
@@ -82,4 +82,4 @@ glarmaPredProb(glarmamod)
 glarmaPIT(glarmamod)
 }
 
-\keyword{Diagnostic}
+\keyword{ts}

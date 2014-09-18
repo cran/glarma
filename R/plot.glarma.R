@@ -1,4 +1,4 @@
-plot.glarma <- function(x, which = c(1L:6L), fits = 1L:3L,
+plot.glarma <- function(x, which = c(1L,3L,5L,7L,8L,9L), fits = 1L:3L,
                         ask = prod(par("mfcol")) <
                               length(which) && dev.interactive(),
                         lwdObs = 1, lwdFixed = 1, lwdGLARMA = 1,
@@ -9,19 +9,26 @@ plot.glarma <- function(x, which = c(1L:6L), fits = 1L:3L,
                         colHist = "royal blue", lwdLine = 2,
                         colPIT1 = "red", colPIT2 = "black",
                         ltyPIT1 = 1, ltyPIT2 = 2, typePIT = "l",
+                        ltyQQ = 2, colQQ = "black",
                         titles, ...)
 {
     ## ask = prod(par("mfcol")) < length(which) && dev.interactive()
-    show <- rep(FALSE, 6)
+    show <- rep(FALSE, 10)
     show[which] <- TRUE
     showFits <- rep(FALSE, 3)
     showFits[fits] <- TRUE
     ## construct list containing either NULLs or requested titles
     if (missing(titles)) {
         ## all titles will be default titles
-        titles  <- vector("list", 6)
+        titles  <- vector("list", 10)
+        titles[[5]] <- "Histogram of Uniform PIT"
+        titles[[6]] <- "Q-Q Plot of Uniform PIT"
+        titles[[7]] <- "Histogram of Randomized Residuals"
+        titles[[8]] <- "Q-Q Plot of Randomized Residuals"
+        titles[[9]] <- "ACF of Randomized Residuals"
+        titles[[10]] <- "PACF of Randomized Residuals"
     } else {
-        defaultTitles <- vector("list", 6)
+        defaultTitles <- vector("list", 10)
         ## replace NULLs with requested titles
         defaultTitles[which] <- titles
         titles <- defaultTitles
@@ -131,6 +138,32 @@ plot.glarma <- function(x, which = c(1L:6L), fits = 1L:3L,
                 main = titles[[6]], ...)
           dev.flush()
         }
+        if (any(show[7L:10L] == TRUE)) {
+            rt <- normRandPIT(x)$rt
+        }
+        if (show[7L]) {
+          dev.hold()
+          hist(rt, breaks = bins, main = titles[[7]],
+               col = colHist, xlab = expression(r[t]), ...)
+          box()
+          dev.flush()
+        }
+        if (show[8L]) {
+          dev.hold()
+          qqnorm(rt, main =  titles[[8]], ...)
+          abline(0, 1, lty = ltyQQ, col = colQQ, ...)
+          dev.flush()
+        }
+        if (show[9L]) {
+          dev.hold()
+          acf(rt,  main =  titles[[9]], ...)
+          dev.flush()
+        }
+        if (show[10L]) {
+          dev.hold()
+          pacf(rt,  main =  titles[[10]], ...)
+          dev.flush()
+        }
     }
 
     if (x$type == "Bin") {
@@ -236,6 +269,32 @@ plot.glarma <- function(x, which = c(1L:6L), fits = 1L:3L,
                  lty1 = ltyPIT1, lty2 = ltyPIT2, type = typePIT,
                  main = titles[6], ...)
            dev.flush()
+        }
+        if (any(show[7L:10L] == TRUE)) {
+            rt <- normRandPIT(x)$rt
+        }
+        if (show[7L]) {
+          dev.hold()
+          hist(rt, breaks = bins, main = titles[[7]],
+               col = colHist, xlab = expression(r[t]), ...)
+          box()
+          dev.flush()
+        }
+        if (show[8L]) {
+          dev.hold()
+          qqnorm(rt, main =  titles[[8]], ...)
+          abline(0, 1, lty = ltyQQ, col = colQQ, ...)
+          dev.flush()
+        }
+        if (show[9L]) {
+          dev.hold()
+          acf(rt,  main =  titles[[9]], ...)
+          dev.flush()
+        }
+        if (show[10L]) {
+          dev.hold()
+          pacf(rt,  main =  titles[[10]], ...)
+          dev.flush()
         }
     }
     invisible()
