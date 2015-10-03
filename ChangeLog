@@ -1,5 +1,12 @@
-2014-09-25    <d.scott@auckland.ac.nz>
+2015-09-29    <d.scott@auckland.ac.nz>
 
+	* new version 1.4-0 created as requested by JSS 
+
+	* NAMESPACE changed to add import and importFrom entries required
+	for packages in base R. Also added S3metod for nobs.glarma
+
+2014-09-25    <d.scott@auckland.ac.nz>
+ 
 	* plot.glarma changed to add four extra plots using randomized
 	residuals. Default plots changed, dropping three of the original
 	plots and adding three randomized residual plots (histogram, Q-Q

@@ -15,12 +15,13 @@
 
 \description{
 
-  \code{glarma} is used to fit generalized linear autoregressive moving
-  average models with various distributions (Poisson, binomial, negative
-  binomial) using either Pearson residuals or score residuals, and for the
-  binomial distribution, identity residuals. It also estimates the
-  parameters of the GLARMA model with various distributions by using
-  Fisher scoring or Newton-Raphson iteration.
+  The function \code{glarma} is used to fit generalized linear
+  autoregressive moving average models with various distributions
+  (Poisson, binomial, negative binomial) using either Pearson residuals
+  or score residuals, and for the binomial distribution, identity
+  residuals. It also estimates the parameters of the GLARMA model with
+  various distributions by using Fisher scoring or Newton-Raphson
+  iteration.
 
   For Poisson and negative binomial response distributions the log link
   is currently used. For binomial responses the logit link is currently
@@ -282,6 +283,13 @@ delta_(k) + Omega(delta_k) * first derivative of log(delta_k)}
    parameters, computed by the aic component of the family. For
    binomial and Poisson families the dispersion is fixed at one and the
    number of parameters is the number of coefficients.}
+}
+
+\references{
+  Dunsmuir, William T. M. and Scott, David J. (2015) The \pkg{glarma} Package
+  for Observation-Driven Time Series Regression of Counts.
+  \emph{Journal of Statistical Software}, \bold{67(7)}, 1--36.
+  \url{http://dx.doi.org/10.18637/jss.v067.i07}
 }
 
 \seealso{

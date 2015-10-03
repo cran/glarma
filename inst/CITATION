@@ -1,19 +1,21 @@
-citHeader("To cite package 'glarma' in publications use:")
+bibentry(bibtype = "Article",
+  title        = "The {glarma} Package for Observation-Driven Time Series Regression of Counts",
+  author       = c(person(given = c("William", "T.", "M."),
+                          family = "Dunsmuir"),
+                   person(given = c("David", "J."),
+                          family = "Scott")),
+  journal      = "Journal of Statistical Software",
+  year         = "2015",
+  volume       = "67",
+  number       = "7",
+  pages        = "1--36",
+  doi          = "10.18637/jss.v067.i07",
 
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
-vers <- paste("R package version", meta$Version)
+  header       = "To cite glarma in publications use:",
+  textVersion  =
+  paste("William T. M. Dunsmuir, David J. Scott (2015).",
+        "The glarma Package for Observation-Driven Time Series Regression of Counts.",
+        "Journal of Statistical Software, 67(7), 1-36.",
+        "doi:10.18637/jss.v067.i07")
+)
 
-citEntry(entry = "Manual",
-         title =
-         "glarma: Generalized Linear Autoregressive Moving Average Models",
-         author = personList(as.person("William T.M. Dunsmuir"),
-                             as.person("Cenanning Li"),
-                             as.person("David J. Scott")),
-         year = year,
-         note = vers,
-
-         textVersion =
-         paste0("William T.M. Dunsmuir, Cenanning Li, and David J. Scott(",
-                year,"). glarma: ",
-                "Generalized Linear Autoregressive Moving Average Models. ",
-                vers, "."))

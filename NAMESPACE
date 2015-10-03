@@ -1,7 +1,12 @@
 ################################################
 ### Package imports
 ################################################
-importFrom(MASS, glm.nb)
+importFrom("MASS", "glm.nb")
+import("datasets")
+import("grDevices")
+import("graphics")
+import("stats")
+importFrom("utils", "compareVersion", "head", "write.table")
 ################################################
 ### Functions
 ################################################
@@ -29,4 +34,5 @@ S3method(logLik, glarma)
 S3method(model.frame, glarma)
 S3method(plot, glarma)
 S3method(forecast, glarma)
+S3method(nobs, glarma)
 
