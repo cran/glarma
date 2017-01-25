@@ -11,7 +11,7 @@ forecast.glarma <- function(object, n.ahead = 1, newdata = 0,
                             newoffset = 0, newm = 1, ...){
 
     L <- NROW(newdata)
-    if (L == 0) return
+    if (L == 0) stop("Values are required for predictors")
 
     T <- dim(object$X)[1]
     r <- object$r

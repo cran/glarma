@@ -122,7 +122,7 @@ glarmaPoissonPearson <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
     }
 
     ## update likelihood and derivatives for Poisson
-    ll   <- ll + y[time] * W[tmpq] - mu[tmpq] - log(factorial(y[time]))
+    ll   <- ll + y[time] * W[tmpq] - mu[tmpq] - lfactorial(y[time])
 
     ll.d <- ll.d + (y[time] - mu[tmpq]) * W.d[, tmpq]
     if (method == "FS") {
