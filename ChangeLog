@@ -1,3 +1,9 @@
+2018-02-07    <d.scott@auckland.ac.nz>
+
+	* added digest to suggests in DESCRIPTION after notification from
+	Hornik: Warning: You used a knitr feature that depends on the
+	digest package. Make sure it is installed. 
+
 2017-01-24    <d.scott@auckland.ac.nz>
 
 	* change to the file glarmaPoissonPearson.R.
