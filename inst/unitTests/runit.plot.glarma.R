@@ -31,7 +31,7 @@ graphictests.plot.glarma <- function(){
 
   for (j in 1:12) {
     monthmat[months(strptime(RobberyConvict$Date, "%m/%d/%Y"),
-                    abbreviate = TRUE) == months[j], j] <-1
+                    abbreviate = TRUE) == months[j], j] <- 1
   }
 
   RobberyConvict <- cbind(rep(1, datalen), RobberyConvict, monthmat)

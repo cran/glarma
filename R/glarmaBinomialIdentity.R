@@ -1,7 +1,9 @@
-glarmaBinomialIdentity <- function(y, X, offset = NULL, delta, phiLags, thetaLags,
+glarmaBinomialIdentity <- function(y, X, offset = NULL, delta,
+                                   phiLags, thetaLags,
                                    method = "FS") {
     n.trial <- y[, 1] + y[, 2]
-    ## Note this was changed from earlier versions for consistency with R's binomial
+    ## Note this was changed from earlier versions
+    ## for consistency with R's binomial
     ## glm conventions.
     r     <- ncol(X)
     y     <- y[, 1]

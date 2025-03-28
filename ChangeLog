@@ -1,8 +1,64 @@
+2025-03-26    <d.scott@auckland.ac.nz>
+
+	* DESCRIPTION, NAMESPACE, initial.Rd, randPIT.Rd, glarmaSim.R all
+	changed after note from Kurt
+
+	* DESCRIPTION added methods to Imports and updated version to
+	1.7-1. Also changed Authors field to Authors@R as suggested when
+	submitted to winbuilder devel version
+
+	* NAMESPACE added importFrom("methods", "is")
+
+	* initial.Rd changed all \link{glm.nb} to \link[MASS]{glm.nb} as
+	advised in checks of version 1.6.0 on CRAN
+
+	* randPIT.Rd changed \& to just & as advised in checks of version
+	1.6.0 on CRAN
+
+	* glarmaSim.R changed check of class of object to
+	!is(object, "glarmaSimModel") as advised when checking package 
+
+2019-06-13    <d.scott@auckland.ac.nz>
+
+	* help files added or modified for forecast, glarmaSim,
+	glarmaSimModel, and extractGlarmaSimModel. Examples taken from
+	test files which had been created previously for functions which
+	were renamed as shown below
+
+	* extractGlarmaModel changed to extractGlarmaSimModel
+
+	* glarmaModel changed to glarmaSimModel
+
+	* forecast.glarma added test of dimension of newdata which must
+	match the number of predictors
+
+2018-07-19    <d.scott@auckland.ac.nz>
+
+	* glarmaModel added in the file glarmaModel.R
+
+	* glarmaSim added in the file glarmaSim.R
+
+	* extractGlarmaModel added in the file accessors.R
+
+2018-07-12    <d.scott@auckland.ac.nz>
+
+	* forecast changed to ensure number of rows in newdata and lengths
+	of newoffset and newm match the forecast horizon n.ahead. Also
+	protected the case of no offset when calculating forecasts of eta
+
+	* likeTests changed to fix error when model is negative binomial
+	with offsets. Error arises because the method for adding offsets
+	is different when using glm (added as an argument) to when using
+	glm.nb form MASS (added as + offset in the model specification).
+	Email from polus@ibe.med.uni-muenchen.de,
+	Friday, June 22, 2018 6:03 PM
+	Added example in the help file
+
 2018-02-07    <d.scott@auckland.ac.nz>
 
 	* added digest to suggests in DESCRIPTION after notification from
 	Hornik: Warning: You used a knitr feature that depends on the
-	digest package. Make sure it is installed. 
+	digest package. Make sure it is installed.
 
 2017-01-24    <d.scott@auckland.ac.nz>
 

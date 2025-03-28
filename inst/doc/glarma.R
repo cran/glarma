@@ -16,7 +16,7 @@ knit_hooks$set(rexample = function(before, options, envir) {
 library(MASS)
 library(glarma)
 
-## ----asthma, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = FALSE----
+## ----asthma, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 data(Asthma)
 y <- Asthma[, 1]
 X <- as.matrix(Asthma[, 2:16])
@@ -32,7 +32,7 @@ par(mar = c(4,4,3,.1), cex.lab = 0.95, cex.axis = 0.9,
 plot(glarmamod, which = c(1,2,3,5),
      titles = list(NULL, NULL, NULL, "PIT for GLARMA (Neg. Binomial)"))
 
-## ----courtmonths, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = FALSE----
+## ----courtmonths, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 data(RobberyConvict)
 datalen <- dim(RobberyConvict)[1]
 monthmat <- matrix(0, nrow = datalen, ncol = 12)
@@ -42,13 +42,13 @@ months <- unique(months(strptime(RobberyConvict$Date, format = "%m/%d/%Y"),
                         abbreviate=TRUE))
 for (j in 1:12) {
   monthmat[months(strptime(RobberyConvict$Date,  "%m/%d/%Y"),
-                  abbreviate = TRUE) == months[j], j] <-1
+                  abbreviate = TRUE) == months[j], j] <- 1
 }
 
 RobberyConvict <- cbind(rep(1, datalen), RobberyConvict, monthmat)
 rm(monthmat)
 
-## ----courtmodel, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = FALSE----
+## ----courtmodel, echo = TRUE, prompt = TRUE, tidy = FALSE, cache = TRUE----
 ### Prepare the data for fitting a binomial
 y1 <- RobberyConvict$LC.Y
 n1 <- RobberyConvict$LC.N

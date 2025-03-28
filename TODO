@@ -9,7 +9,8 @@ the value if 2 less than that produced by glm.nb for the no glarma fit.
 -------------------------------------------
 
 
-standard errors (from Fisher Scoring or Newton Raphson) for glarma with no glarma fit do not match those for glm.nb 
+standard errors (from Fisher Scoring or Newton Raphson) for glarma with no
+glarma fit do not match those for glm.nb 
 NEED to check if this also occurs for other distributions (Poisson, binomial). 
 
 ------------------------------------------

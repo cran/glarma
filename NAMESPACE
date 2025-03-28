@@ -2,6 +2,7 @@
 ### Package imports
 ################################################
 importFrom("MASS", "glm.nb")
+importFrom("methods", "is")
 import("datasets")
 import("grDevices")
 import("graphics")
@@ -19,6 +20,9 @@ export(histPIT)
 export(qqPIT)
 export(normRandPIT)
 export(forecast, forecast.glarma)
+export(glarmaSimModel)
+export(extractGlarmaSimModel)
+export(glarmaSim)
 ################################################
 ## S3 classes and methods
 ################################################

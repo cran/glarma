@@ -289,7 +289,7 @@ delta_(k) + Omega(delta_k) * first derivative of log(delta_k)}
   Dunsmuir, William T. M. and Scott, David J. (2015) The \pkg{glarma} Package
   for Observation-Driven Time Series Regression of Counts.
   \emph{Journal of Statistical Software}, \bold{67(7)}, 1--36.
-  \url{http://dx.doi.org/10.18637/jss.v067.i07}
+  \doi{10.18637/jss.v067.i07}
 }
 
 \seealso{

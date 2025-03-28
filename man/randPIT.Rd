@@ -49,7 +49,7 @@ normRandPIT(object)
 }
 \references{
   Berkowitz, J. (2001) Testing density forecasts, with applications to
-  risk management. \emph{Journal of Business \& Economic Statistics},
+  risk management. \emph{Journal of Business & Economic Statistics},
   \bold{19}, 465--474.
 
   Dunn, Peter K. and Smyth, Gordon K. (1996) Randomized quantile

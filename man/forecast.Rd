@@ -3,7 +3,7 @@
 \alias{forecast.glarma}
 
 \title{
-Forecasting GLARMA time series
+  Forecasting GLARMA time series
 }
 \description{
 \code{forecast} is a generic function for forecasting time series or
@@ -28,13 +28,16 @@ forecast(object, ...)
   \item{n.ahead}{The number of periods ahead to be forecast.}
 
   \item{newdata}{The model matrix \eqn{X} comprising the values of the
-    predictors for the times for which the series is to be predicted.  }
+    predictors for the times for which the series is to be
+    predicted. Number of rows must be equal to \code{n.ahead} }
 
   \item{newoffset}{A vector containing the values of the offset for the
-    times for which the series is to be predicted.  }
+    times for which the series is to be predicted.  Length must be equal
+    to \code{n.ahead} if the model includes an offset}
 
   \item{newm}{A vector containing the number of trials when forecasting
-    binomial or binary time series. Defaults to the binary case. }
+    binomial or binary time series. Defaults to the binary case. Length
+    must be equal to \code{n.ahead}}
 
   \item{\dots}{Further arguments for the call, currently unused.  }
 
@@ -230,9 +233,10 @@ par(mfrow = c(2,1))
 barplot(table(forecastY[, 2]),
         main = "Barplot of Sample Y Values 2 Steps Ahead")
 hist(forecastY[, 2], xlab = "Sample Y values",
-     breaks=seq(0,max(forecastY[, 2])),
-     main = "Histogram of Sample Y Values 2 Steps Ahead\nwith 0.025 and 0.975 Quantiles")
+     main = paste0("Histogram of Sample Y Values 2 Steps Ahead",
+                   "\nwith 0.025 and 0.975 Quantiles"))
 abline(v = quantile(forecastY[, 2], c(0.025, 0.975)), col = "red")
+
 
 }
 

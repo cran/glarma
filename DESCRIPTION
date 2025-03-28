@@ -1,19 +1,31 @@
 Package: glarma
 Type: Package
 Title: Generalized Linear Autoregressive Moving Average Models
-Version: 1.6-0
-Date: 2018-02-07
-Author: William T.M. Dunsmuir <w.dunsmuir@unsw.edu.au>, Cenanning Li
-	<cli113@aucklanduni.ac.nz>, and David J. Scott
-	<d.scott@auckland.ac.nz>
-Maintainer: "William T.M. Dunsmuir" <w.dunsmuir@unsw.edu.au>
+Version: 1.7-1
+Date: 2025-03-26
+Authors@R: c(person(given = c("William", "T.M."),
+                    family = "Dunsmuir",
+                    role = c("aut","cre"),
+                    email = "w.dunsmuir@unsw.edu.au"),		      
+             person(given = "Cenanning",
+                    family = "Li",
+                    role = "aut",
+                    email = "cli113@aucklanduni.ac.nz"),
+             person(given = c("David", "J."),
+                    family = "Scott",
+                    role = "aut",
+                    email = "dsco036@gmail.com"))
+Maintainer: William T.M. Dunsmuir <w.dunsmuir@unsw.edu.au>
 Depends: R (>= 2.3.0)
-Imports: MASS
-Suggests: RUnit, knitr, zoo
+Imports: MASS, methods
+Suggests: RUnit, knitr, digest, zoo
 VignetteBuilder: knitr
 Description: Functions are provided for estimation, testing, diagnostic checking and forecasting of generalized linear autoregressive moving average (GLARMA) models for discrete valued time series with regression variables.  These are a class of observation driven non-linear non-Gaussian state space models. The state vector consists of a linear regression component plus an observation driven component consisting of an autoregressive-moving average (ARMA) filter of past predictive residuals. Currently three distributions (Poisson, negative binomial and binomial) can be used for the response series. Three options (Pearson, score-type and unscaled) for the residuals in the observation driven component are available. Estimation is via maximum likelihood (conditional on initializing values for the ARMA process) optimized using Fisher scoring or Newton Raphson iterative methods. Likelihood ratio and Wald tests for the observation driven component allow testing for serial dependence in generalized linear model settings. Graphical diagnostics including model fits, autocorrelation functions and probability integral transform residuals are included in the package. Several standard data sets are included in the package.
 License: GPL (>= 2)
-Packaged: 2018-02-07 03:40:49 UTC; dsco036
 NeedsCompilation: no
+Packaged: 2025-03-28 09:22:07 UTC; dsco0
+Author: William T.M. Dunsmuir [aut, cre],
+  Cenanning Li [aut],
+  David J. Scott [aut]
 Repository: CRAN
-Date/Publication: 2018-02-07 04:26:47 UTC
+Date/Publication: 2025-03-28 12:20:02 UTC

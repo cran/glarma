@@ -54,6 +54,7 @@ likeTests(object)
 }
 
 \examples{
+### Binomial response
 data(Polio)
 y <- Polio[, 2]
 X <- as.matrix(Polio[, 3:8])
@@ -61,6 +62,20 @@ glarmamod <- glarma(y, X, thetaLags = c(1,2,5), type = "Poi", method = "FS",
                     residuals = "Pearson", maxit = 100, grad = 2.22e-16)
 likTests(glarmamod)
 likeTests(glarmamod)
+### Negative binomial response
+glarmamod <- glarma(y, X, thetaLags = c(1,2,5), type = "NegBin", method = "FS",
+                    residuals = "Pearson", maxit = 100, grad = 2.22e-16)
+glarmamod
+summary(glarmamod)
+likeTests(glarmamod)
+
+### Negative Binomial Response with offset
+glarmamod.offset <- glarma(y, X, thetaLags = c(1,2,5), type = "NegBin",
+                           method = "FS", offset=log(X[,1]),
+                           residuals = "Pearson", maxit = 100, grad = 2.22e-16)
+glarmamod.offset
+summary(glarmamod.offset)
+likeTests(glarmamod.offset)
 }
 
 \keyword{Diagnostic}

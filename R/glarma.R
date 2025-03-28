@@ -148,7 +148,7 @@ print.glarma <- function(x, ...) {
                                                      length(x$phiLags))]),
                      print.gap = 2, quote = FALSE)
      }
-   } else{
+   } else {
      if (x$pq > 0){
          cat("GLARMA Coefficients:\n")
          print.default(format(x$delta[(ncol(x$X) + 1):length(x$delta)]),
